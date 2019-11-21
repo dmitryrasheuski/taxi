@@ -1,0 +1,58 @@
+create database taxi CHARACTER SET utf8 COLLATE utf8_general_ci;
+use taxi;
+
+create table userStatus(
+  id int AUTO_INCREMENT PRIMARY KEY,
+  status varchar(10) NOT NULL UNIQUE
+);
+
+create table users(
+  id bigint AUTO_INCREMENT PRIMARY KEY,
+  phone int NOT NULL UNIQUE,
+  pageName varchar(20),
+  surname varchar(20),
+  password varchar(20),
+  status int DEFAULT 1,
+  CONSTRAINT FC_users_user_status FOREIGN KEY (status) REFERENCES userStatus(id)
+);
+
+INSERT INTO userStatus (status)
+  VALUES ('passenger'),
+       ('driver'),
+       ('admin');
+
+INSERT INTO users(pageName, surname, password, status, phone)
+  VALUE('admin', 'admin', 'admin', 3, 111111111);
+
+create table modelCar(
+  id int AUTO_INCREMENT PRIMARY KEY,
+  model varchar(30) NOT NULL UNIQUE
+);
+
+create table colorCar(
+  id int AUTO_INCREMENT PRIMARY KEY,
+  color varchar(20) NOT NULL UNIQUE
+);
+
+create table cars(
+  id bigint AUTO_INCREMENT PRIMARY KEY,
+  number varchar(7) NOT NULL,
+  idDriver bigint NOT NULL,
+  color int NOT NULL,
+  model int NOT NULL,
+  status boolean DEFAULT FALSE ,
+  CONSTRAINT FK_cars_drivers FOREIGN KEY (idDriver) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT FK_cars_color_cars FOREIGN KEY (color) REFERENCES colorCar(id) ON UPDATE CASCADE,
+  CONSTRAINT FK_cars_model_car FOREIGN KEY (model) REFERENCES modelCar(id) ON UPDATE CASCADE
+);
+
+create table orders(
+  id bigint AUTO_INCREMENT PRIMARY KEY,
+  idUser bigint NOT NULL,
+  idCar bigint NOT NULL,
+  `from` varchar(50) NOT NULL,
+  `where` varchar(50) NOT NULL,
+  comments varchar(100),
+  CONSTRAINT FK_orders_users FOREIGN KEY (idUser) REFERENCES users(id),
+  CONSTRAINT FK_orders_car FOREIGN KEY (idCar) REFERENCES cars(id)
+);
