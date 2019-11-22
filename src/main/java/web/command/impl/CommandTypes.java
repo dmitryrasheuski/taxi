@@ -5,52 +5,23 @@ import web.command.Command;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public enum CommandTypes {
-    CREATE_ORDER("createOrder"){
-        @Override
-        Command createCommand(HttpServletRequest req) {
-            return new CreateOrderCommand(req);
-        }
-    },
-    GET_TRIP_LIST("getTripList"){
-        @Override
-        Command createCommand(HttpServletRequest req) {
-            return new GetTripListCommand(req);
-        }
-    },
-    GO_TO("goTo") {
-        @Override
-        Command createCommand(HttpServletRequest req) {
-            return new GoToCommand(req);
-        }
-    },
-    LOGIN("login") {
-        @Override
-        Command createCommand(HttpServletRequest req) {
-            return new LoginCommand(req);
-        }
-    },
-    LOGOUT("logout") {
-        @Override
-        Command createCommand(HttpServletRequest req) {
-            return new LogoutCommand(req);
-        }
-    },
-    REGISTRY("registry") {
-        @Override
-        Command createCommand(HttpServletRequest req) {
-            return new RegistryCommand(req);
-        }
-    };
+    CREATE_ORDER("createOrder", CreateOrderCommand::new),
+    GET_TRIP_LIST("getTripList", GetTripListCommand::new),
+    GO_TO("goTo", GoToCommand::new),
+    LOGIN("login", LoginCommand::new),
+    LOGOUT("logout", LogoutCommand::new),
+    REGISTRY("registry", RegistryCommand::new);
 
     private String strPattern;
+    private Function<HttpServletRequest, Command> function;
 
-    CommandTypes(String strPattern) {
+    CommandTypes(String strPattern, Function<HttpServletRequest, Command> function) {
         this.strPattern = strPattern;
+        this.function = function;
     }
-
-    abstract Command createCommand(HttpServletRequest req);
 
     private static Map<String, CommandTypes> map = new HashMap<>();
     static {
@@ -64,6 +35,6 @@ public enum CommandTypes {
         if (strPattern != null){
             type = map.get(strPattern);
         }
-        return type != null ? type.createCommand(req) : GO_TO.createCommand(req);
+        return type != null ? type.function.apply(req) : GO_TO.function.apply(req);
     }
 }
