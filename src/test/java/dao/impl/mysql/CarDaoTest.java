@@ -15,7 +15,7 @@ import java.sql.SQLException;;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestCarDao {
+public class CarDaoTest {
 
     private static DaoFactory daoFactory;
     private static UserDao userDao;
