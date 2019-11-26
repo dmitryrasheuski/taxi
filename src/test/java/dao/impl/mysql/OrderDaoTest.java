@@ -15,7 +15,7 @@ import org.junit.rules.ExpectedException;
 
 import java.sql.SQLException;
 
-public class TestOrderDao {
+public class OrderDaoTest {
 
     private static DaoFactory factory;
     private static OrderDao orderDao;
