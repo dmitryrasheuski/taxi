@@ -54,7 +54,7 @@ abstract class AbstractDao {
         }
     }
 
-    Optional<Long> addEntity(Object entity, String sqlInsert) throws SQLException{
+    Optional<Long> addEntity(Object entity, String sqlInsert) throws SQLException {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -86,10 +86,11 @@ abstract class AbstractDao {
             close(con, exception);
         }
     }
-    List getEntityByOneValue(Object value, String sqlSelect, String exceptionMessage)throws AppSqlException, SQLException{
+    <T> Optional<List<T>> getEntityByOneValue(Object value, String sqlSelect) throws SQLException {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
+        Exception exception = null;
         try {
             con = getConnection();
 
@@ -97,61 +98,77 @@ abstract class AbstractDao {
             ps.setObject(1, value);
 
             rs = ps.executeQuery();
-            throwAppSqlException(!rs.next(), exceptionMessage);
 
             return handleResultSet(rs);
 
-        } finally {
-            closeResultSet(rs);
-            closePreparedStatement(ps);
-            closeConnection(con);
-        }
-    }
-    void deleteById(long id, String sqlDelete, String exceptionMessage) throws AppSqlException, SQLException{
-        Connection con = null;
-        PreparedStatement ps = null;
-        try {
-            con = getConnection();
-
-            ps = con.prepareStatement(sqlDelete);
-            ps.setLong(1, id);
-
-            int res = ps.executeUpdate();
-            throwAppSqlException(res == 0, exceptionMessage);
-
-        } finally {
-            closePreparedStatement(ps);
-            closeConnection(con);
-        }
-    }
-    void updateOneColumnById(long id, Object value, String sqlUpdate, String exceptionMessage) throws AppSqlException, SQLException{
-        Connection con = null;
-        PreparedStatement ps = null;
-        try {
-            con = getConnection();
-
-            ps = con.prepareStatement(sqlUpdate);
-            ps.setObject(1, value);
-            ps.setLong(2, id);
-
-            int res = ps.executeUpdate();
-            throwAppSqlException(res == 0, exceptionMessage);
-
         } catch (Exception ex) {
-            try {
-                rollback(con);
-            } catch (SQLException e){
-                this.logger.error("rollback exception", e);
-                ex.addSuppressed(e);
-            }
+            exception = ex;
             throw ex;
 
         } finally {
-            closePreparedStatement(ps);
-            closeConnection(con);
+            close(rs, exception);
+            close(ps, exception);
+            close(con, exception);
+        }
+    }
+    Optional<Integer> deleteById(long id, String sqlDelete) throws SQLException{
+        Connection con = null;
+        PreparedStatement ps = null;
+        Exception exception = null;
+        try {
+            con = getConnection();
+            startTransaction(con);
+            ps = con.prepareStatement(sqlDelete);
+            ps.setLong(1, id);
+            int res = ps.executeUpdate();
+            commit(con);
+
+            if(res > 0){
+                return Optional.of(res);
+            } else {
+                return Optional.empty();
+            }
+
+        } catch (Exception ex) {
+            rollback(con, ex);
+            exception = ex;
+            throw ex;
+
+        } finally {
+            close(ps, exception);
+            close(con, exception);
+        }
+    }
+    Optional<Integer> updateOneColumnById(long id, Object value, String sqlUpdate) throws SQLException {
+        Connection con = null;
+        PreparedStatement ps = null;
+        Exception exception = null;
+        try {
+            con = getConnection();
+            startTransaction(con);
+            ps = con.prepareStatement(sqlUpdate);
+            ps.setObject(1, value);
+            ps.setLong(2, id);
+            int res = ps.executeUpdate();
+            commit(con);
+
+            if(res > 0){
+                return Optional.of(res);
+            } else {
+                return Optional.empty();
+            }
+
+        } catch (Exception ex) {
+            rollback(con, ex);
+            exception = ex;
+            throw ex;
+
+        } finally {
+            close(ps, exception);
+            close(con, exception);
         }
     }
 
     abstract PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException;
-    abstract List handleResultSet(ResultSet rs) throws SQLException;
+    abstract <T> Optional<List<T>> handleResultSet(ResultSet rs) throws SQLException;
 }

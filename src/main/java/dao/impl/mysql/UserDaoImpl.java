@@ -34,38 +34,46 @@ class UserDaoImpl extends AbstractDao implements UserDao {
     }
     @Override
     public Optional<Integer> deleteUser(long id) throws SQLException, AppSqlException {
-        deleteById(id, deleteUser,  "user isn't found");
+        return deleteById(id, deleteUser);
     }
     @Override
     public Optional<Integer> updatePhone(long id, int phone) throws SQLException, AppSqlException {
-        updateOneColumnById(id, phone, updatePhone, "phone isn't updated");
+        return updateOneColumnById(id, phone, updatePhone);
     }
     @Override
     public Optional<Integer> updateName(long id, String name) throws SQLException, AppSqlException{
-        updateOneColumnById(id, name, updateName, "name isn't updated");
+        return updateOneColumnById(id, name, updateName);
     }
     @Override
     public Optional<Integer> updateSurname(long id, String surname) throws SQLException, AppSqlException{
-        updateOneColumnById(id, surname, updateSurname, "surname isn't updated");
+        return updateOneColumnById(id, surname, updateSurname);
     }
     @Override
     public Optional<Integer> updatePassword(long id, String password) throws SQLException, AppSqlException {
-        updateOneColumnById(id, password, updatePassword, "password isn't updated");
+        return updateOneColumnById(id, password, updatePassword);
     }
     @Override
     public Optional<Integer> updateStatus(long id, String status) throws SQLException, AppSqlException {
-       int idStatus = getStatusId(status);
-       updateOneColumnById(id, idStatus, updateStatus, "status isn't updated");
+        Connection con = getConnection();
+        int idStatus = 0;
+
+        try {
+            idStatus = getStatusId(status, con).orElseThrow(() -> new IllegalArgumentException("user status was didn't found"));
+        } finally {
+            close(con, new Exception());
+        }
+
+        return updateOneColumnById(id, idStatus, updateStatus);
     }
     @Override
-    public Optional<User> getById(long id) throws SQLException, AppSqlException{
-        List list = getEntityByOneValue(id, getUserById, "didn't find the user by id");
-        return (User)list.get(0);
+    public Optional<User> getById(long id) throws SQLException {
+        return getEntityByOneValue(id, getUserById)
+                .flatMap((list) -> Optional.of((User)list.get(0)));
     }
     @Override
-    public Optional<User> getByPhone(int phone) throws SQLException, AppSqlException{
-        List list = getEntityByOneValue(phone, getUserByPhone, "didn't find the user by phone");
-        return (User)list.get(0);
+    public Optional<User> getByPhone(int phone) throws SQLException{
+        return getEntityByOneValue(phone, getUserByPhone)
+                .flatMap((list) -> Optional.of((User)list.get(0)));
     }
 
     private Optional<Integer> getStatusId(String status, Connection con) throws SQLException{
@@ -111,7 +119,11 @@ class UserDaoImpl extends AbstractDao implements UserDao {
         return ps;
     }
     @Override
-    List handleResultSet(ResultSet rs) throws SQLException {
+    Optional<List<User>> handleResultSet(ResultSet rs) throws SQLException {
+        if (!rs.next()) {
+            return Optional.empty();
+        }
+
         List<User> list = new ArrayList<>();
         User user = null;
         long id = 0;
@@ -120,7 +132,6 @@ class UserDaoImpl extends AbstractDao implements UserDao {
         String surname = null;
         String password = null;
         String status = null;
-
         do{
             id = rs.getLong("id");
             phone = rs.getInt("phone");
@@ -132,6 +143,6 @@ class UserDaoImpl extends AbstractDao implements UserDao {
             list.add(user);
         } while (rs.next());
 
-        return list;
+        return Optional.of(list);
     }
 }

@@ -34,28 +34,28 @@ class CarDaoImpl extends AbstractDao implements CarDao{
     }
     @Override
     public Optional<Integer> deleteCar(long idCar) throws SQLException, AppSqlException{
-        deleteById(idCar, deleteCar, "car didn't delete");
+        return deleteById(idCar, deleteCar);
     }
     @Override
     public Optional<Integer> updateStatus(long idCar, boolean status) throws SQLException, AppSqlException{
-        updateOneColumnById(idCar, status, updateStatus, "car status didn't update");
+        return updateOneColumnById(idCar, status, updateStatus);
     }
     @Override
-    public Optional<Car> getCarById(long idCar) throws SQLException, AppSqlException{
-        List list = getEntityByOneValue(idCar, getCarById, "car by id didn't found ");
-        return (Car)list.get(0);
+    public Optional<Car> getCarById(long idCar) throws SQLException {
+        return getEntityByOneValue(idCar, getCarById)
+                .flatMap((list) -> Optional.of((Car) list.get(0)));
     }
     @Override
-    public Optional<Car> getCarByDriver(long idDriver) throws SQLException, AppSqlException{
-        List list = getEntityByOneValue(idDriver, getCarByDriver, "car by driver didn't found ");
-        return (Car)list.get(0);
+    public Optional<Car> getCarByDriver(long idDriver) throws SQLException {
+        return getEntityByOneValue(idDriver, getCarByDriver)
+                .flatMap((list) -> Optional.of((Car) list.get(0)));
     }
     @Override
-    public Optional<List<Car>> getListCarsByStatus(boolean status) throws SQLException, AppSqlException{
-       return getEntityByOneValue(status, getListCarByStatus, "car by status did'n't found ");
+    public Optional<List<Car>> getListCarsByStatus(boolean status) throws SQLException {
+       return getEntityByOneValue(status, getListCarByStatus);
     }
 
-    private Optional<Integer> getIdColorOrModel(String sqlSelect, String sqlInsert, String value, Connection con) throws SQLException{
+    private Optional<Integer> getIdColorOrModel(String sqlSelect, String sqlInsert, String value, Connection con) throws SQLException {
         int id = 0;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -80,7 +80,7 @@ class CarDaoImpl extends AbstractDao implements CarDao{
             close(ps, exception);
         }
     }
-    private Optional<Integer> addColorOrModel(String sqlInsert, String value, Connection con) throws SQLException{
+    private Optional<Integer> addColorOrModel(String sqlInsert, String value, Connection con) throws SQLException {
         PreparedStatement ps = null;
         ResultSet rs = null;
         Exception exception = null;
@@ -108,7 +108,7 @@ class CarDaoImpl extends AbstractDao implements CarDao{
 
 
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException{
+    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException {
         Car car = (Car)entity;
         int color = getIdColorOrModel(getColorId, addColor, car.getColor(), con).orElseThrow(() -> new NullPointerException(car.getColor() + " color was didn't found "));
         int model = getIdColorOrModel(getModelId, addModel, car.getModel(), con).orElseThrow(() -> new NullPointerException(car.getColor() + " model was didn't found "));
@@ -122,7 +122,11 @@ class CarDaoImpl extends AbstractDao implements CarDao{
         return ps;
     }
     @Override
-    List handleResultSet(ResultSet rs) throws SQLException{
+    Optional<List<Car>> handleResultSet(ResultSet rs) throws SQLException {
+        if (!rs.next()){
+            return Optional.empty();
+        }
+
         List<Car> carList = new ArrayList<>();
         Car car = null;
         long id = 0;
@@ -141,6 +145,7 @@ class CarDaoImpl extends AbstractDao implements CarDao{
             car = CarBuilder.createCar().setId(id).setIdDriver(idDriver).setNumber(number).setColor(color).setModel(model).setStatus(status).getCar();
             carList.add(car);
         } while (rs.next());
-        return carList;
+
+        return Optional.of(carList);
     }
 }

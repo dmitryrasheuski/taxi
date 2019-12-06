@@ -22,21 +22,21 @@ class OrderDaoImpl extends AbstractDao implements OrderDao {
     }
 
     @Override
-    public Optional<Long> addOrder(Order order) throws SQLException{
+    public Optional<Long> addOrder(Order order) throws SQLException {
         return addEntity(order, addOrder);
     }
     @Override
-    public Optional<Integer> deleteOrder(long id) throws SQLException, AppSqlException{
-        deleteById(id, deleteOrder, "order didn't delete");
+    public Optional<Integer> deleteOrder(long id) throws SQLException {
+        return deleteById(id, deleteOrder);
     }
     @Override
-    public Optional<List<Order>> getListByIdUser(long idUser) throws SQLException, AppSqlException{
-        return getEntityByOneValue(idUser, getListById, "list is empty");
+    public Optional<List<Order>> getListByIdUser(long idUser) throws SQLException {
+        return getEntityByOneValue(idUser, getListById);
     }
 
 
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException{
+    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException {
         Order order = (Order)entity;
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
         ps.setLong(1, order.getIdUser());
@@ -47,7 +47,11 @@ class OrderDaoImpl extends AbstractDao implements OrderDao {
         return ps;
     }
     @Override
-    List handleResultSet(ResultSet rs) throws SQLException {
+    Optional<List<Order>> handleResultSet(ResultSet rs) throws SQLException {
+        if(!rs.next()) {
+            return Optional.empty();
+        }
+
         List<Order> list = new ArrayList<>();
         Order order = null;
         long id = 0;
@@ -66,6 +70,7 @@ class OrderDaoImpl extends AbstractDao implements OrderDao {
             order = OrderBuilder.createOrder().setId(id).setIdUser(idUser).setIdCar(idCar).setFrom(from).setWhere(where).setComments(comments).getOrder();
             list.add(order);
         } while (rs.next());
-        return list;
+
+        return Optional.of(list);
     }
 }
