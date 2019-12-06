@@ -5,13 +5,14 @@ import appException.dao.AppSqlException;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public interface CarDao {
 
-    long addCar(Car car) throws SQLException, AppSqlException;
-    void deleteCar(long idCar) throws SQLException, AppSqlException;
-    void updateStatus(long idCar, boolean status) throws SQLException, AppSqlException;
-    Car getCarById(long idCar) throws SQLException, AppSqlException;
-    Car getCarByDriver(long idDriver) throws SQLException, AppSqlException;
-    List<Car> getListCarsByStatus(boolean status) throws SQLException, AppSqlException;
+    Optional<Long> addCar(Car car) throws SQLException, AppSqlException;
+    Optional<Integer> deleteCar(long idCar) throws SQLException, AppSqlException;
+    Optional<Integer> updateStatus(long idCar, boolean status) throws SQLException, AppSqlException;
+    Optional<Car> getCarById(long idCar) throws SQLException, AppSqlException;
+    Optional<Car> getCarByDriver(long idDriver) throws SQLException, AppSqlException;
+    Optional<List<Car>> getListCarsByStatus(boolean status) throws SQLException, AppSqlException;
 }
