@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 class UserDaoImpl extends AbstractDao implements UserDao {
     private static final Logger logger = Logger.getLogger(UserDaoImpl.class);
@@ -28,78 +29,84 @@ class UserDaoImpl extends AbstractDao implements UserDao {
     }
 
     @Override
-    public long addUser(User user) throws SQLException, AppSqlException {
-        return addEntity(user, saveUser, "new user isn't added");
+    public Optional<Long> addUser(User user) throws SQLException{
+        return addEntity(user, saveUser);
     }
     @Override
-    public void deleteUser(long id) throws SQLException, AppSqlException {
+    public Optional<Integer> deleteUser(long id) throws SQLException, AppSqlException {
         deleteById(id, deleteUser,  "user isn't found");
     }
     @Override
-    public void updatePhone(long id, int phone) throws SQLException, AppSqlException {
+    public Optional<Integer> updatePhone(long id, int phone) throws SQLException, AppSqlException {
         updateOneColumnById(id, phone, updatePhone, "phone isn't updated");
     }
     @Override
-    public void updateName(long id, String name) throws SQLException, AppSqlException{
+    public Optional<Integer> updateName(long id, String name) throws SQLException, AppSqlException{
         updateOneColumnById(id, name, updateName, "name isn't updated");
     }
     @Override
-    public void updateSurname(long id, String surname) throws SQLException, AppSqlException{
+    public Optional<Integer> updateSurname(long id, String surname) throws SQLException, AppSqlException{
         updateOneColumnById(id, surname, updateSurname, "surname isn't updated");
     }
     @Override
-    public void updatePassword(long id, String password) throws SQLException, AppSqlException {
+    public Optional<Integer> updatePassword(long id, String password) throws SQLException, AppSqlException {
         updateOneColumnById(id, password, updatePassword, "password isn't updated");
     }
     @Override
-    public void updateStatus(long id, String status) throws SQLException, AppSqlException {
+    public Optional<Integer> updateStatus(long id, String status) throws SQLException, AppSqlException {
        int idStatus = getStatusId(status);
        updateOneColumnById(id, idStatus, updateStatus, "status isn't updated");
     }
     @Override
-    public User getById(long id) throws SQLException, AppSqlException{
+    public Optional<User> getById(long id) throws SQLException, AppSqlException{
         List list = getEntityByOneValue(id, getUserById, "didn't find the user by id");
         return (User)list.get(0);
     }
     @Override
-    public User getByPhone(int phone) throws SQLException, AppSqlException{
+    public Optional<User> getByPhone(int phone) throws SQLException, AppSqlException{
         List list = getEntityByOneValue(phone, getUserByPhone, "didn't find the user by phone");
         return (User)list.get(0);
     }
 
-    private int getStatusId(String status) throws SQLException, AppSqlException {
+    private Optional<Integer> getStatusId(String status, Connection con) throws SQLException{
         if (status == null || status.isEmpty()) {
             status = "passenger";
         }
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Connection con = null;
+        Exception exception = null;
         try {
-            con = getConnection();
-
             ps = con.prepareStatement(getStatusId);
             ps.setString(1, status);
 
             rs = ps.executeQuery();
-            throwAppSqlException(!rs.next(), "status didn't find");
 
-            return rs.getInt("id");
+            if(rs.next()) {
+                return Optional.of(rs.getInt("id"));
+            } else {
+                return Optional.empty();
+            }
+
+        } catch (Exception ex) {
+            exception = ex;
+            throw ex
+                    ;
         } finally {
-            closeResultSet(rs);
-            closePreparedStatement(ps);
-            closeConnection(con);
+            close(rs, exception);
+            close(ps, exception);
         }
     }
 
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity)  throws SQLException, AppSqlException{
+    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity)  throws SQLException{
         User user = (User) entity;
+        int statusId = getStatusId(user.getStatus(), con).orElseThrow(() -> new IllegalArgumentException("user status was didn't found"));
+
         ps = con.prepareStatement(saveUser, Statement.RETURN_GENERATED_KEYS);
         ps.setInt(1, user.getPhone());
         ps.setString(2, user.getName());
         ps.setString(3, user.getSurname());
         ps.setString(4, user.getPassword());
-        int statusId = getStatusId(user.getStatus());
         ps.setInt(5, statusId);
         return ps;
     }

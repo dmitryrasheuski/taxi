@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 class CarDaoImpl extends AbstractDao implements CarDao{
     private static final Logger logger = Logger.getLogger(CarDaoImpl.class);
@@ -28,86 +29,94 @@ class CarDaoImpl extends AbstractDao implements CarDao{
     }
 
     @Override
-    public long addCar(Car car) throws SQLException, AppSqlException{
-        return addEntity(car, addCar, "new car didn't create ");
+    public Optional<Long> addCar(Car car) throws SQLException{
+        return addEntity(car, addCar);
     }
     @Override
-    public void deleteCar(long idCar) throws SQLException, AppSqlException{
+    public Optional<Integer> deleteCar(long idCar) throws SQLException, AppSqlException{
         deleteById(idCar, deleteCar, "car didn't delete");
     }
     @Override
-    public void updateStatus(long idCar, boolean status) throws SQLException, AppSqlException{
+    public Optional<Integer> updateStatus(long idCar, boolean status) throws SQLException, AppSqlException{
         updateOneColumnById(idCar, status, updateStatus, "car status didn't update");
     }
     @Override
-    public Car getCarById(long idCar) throws SQLException, AppSqlException{
+    public Optional<Car> getCarById(long idCar) throws SQLException, AppSqlException{
         List list = getEntityByOneValue(idCar, getCarById, "car by id didn't found ");
         return (Car)list.get(0);
     }
     @Override
-    public Car getCarByDriver(long idDriver) throws SQLException, AppSqlException{
+    public Optional<Car> getCarByDriver(long idDriver) throws SQLException, AppSqlException{
         List list = getEntityByOneValue(idDriver, getCarByDriver, "car by driver didn't found ");
         return (Car)list.get(0);
     }
     @Override
-    public List<Car> getListCarsByStatus(boolean status) throws SQLException, AppSqlException{
+    public Optional<List<Car>> getListCarsByStatus(boolean status) throws SQLException, AppSqlException{
        return getEntityByOneValue(status, getListCarByStatus, "car by status did'n't found ");
     }
 
-    private int getIdColorOrModel(String sqlSelect, String sqlInsert, String value, Connection con) throws SQLException, AppSqlException {
+    private Optional<Integer> getIdColorOrModel(String sqlSelect, String sqlInsert, String value, Connection con) throws SQLException{
         int id = 0;
         PreparedStatement ps = null;
         ResultSet rs = null;
+        Exception exception = null;
         try {
             ps = con.prepareStatement(sqlSelect);
             ps.setString(1, value);
-
             rs = ps.executeQuery();
 
             if (rs.next()){
-                id = rs.getInt(1);
+                return Optional.of(rs.getInt(1));
             } else {
-                id = addColorOrModel(sqlInsert, value, con);
+                return addColorOrModel(sqlInsert, value, con);
             }
 
-            throwAppSqlException(id == 0, "not found id color or model");
-
-            return id;
+        } catch (Exception ex) {
+            exception = ex;
+            throw ex;
 
         } finally {
-            closeResultSet(rs);
-            closePreparedStatement(ps);
+            close(rs, exception);
+            close(ps, exception);
         }
     }
-    private int addColorOrModel(String sqlInsert, String value, Connection con) throws SQLException, AppSqlException {
+    private Optional<Integer> addColorOrModel(String sqlInsert, String value, Connection con) throws SQLException{
         PreparedStatement ps = null;
         ResultSet rs = null;
+        Exception exception = null;
         try {
             ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, value);
             ps.executeUpdate();
-
             rs = ps.getGeneratedKeys();
-            throwAppSqlException( !rs.next() , "not added new color or model");
 
-            return rs.getInt(1);
+            if (rs.next()) {
+                return Optional.of(rs.getInt(1));
+            } else {
+                return Optional.empty();
+            }
+
+        } catch (Exception ex) {
+            exception = ex;
+            throw ex;
 
         } finally {
-            closeResultSet(rs);
-            closePreparedStatement(ps);
+            close(rs, exception);
+            close(ps, exception);
         }
     }
 
 
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException, AppSqlException {
+    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException{
         Car car = (Car)entity;
+        int color = getIdColorOrModel(getColorId, addColor, car.getColor(), con).orElseThrow(() -> new NullPointerException(car.getColor() + " color was didn't found "));
+        int model = getIdColorOrModel(getModelId, addModel, car.getModel(), con).orElseThrow(() -> new NullPointerException(car.getColor() + " model was didn't found "));
+
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
         ps.setString(1, car.getNumber());
         ps.setLong(2, car.getIdDriver());
-        int color = getIdColorOrModel(getColorId, addColor, car.getColor(), con);
         ps.setInt(3, color);
-        int model = getIdColorOrModel(getModelId, addModel, car.getModel(), con);
         ps.setInt(4, model);
         ps.setBoolean(5, car.getStatus());
         return ps;

@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 class OrderDaoImpl extends AbstractDao implements OrderDao {
     private static final Logger logger = Logger.getLogger(OrderDaoImpl.class);
@@ -21,21 +22,21 @@ class OrderDaoImpl extends AbstractDao implements OrderDao {
     }
 
     @Override
-    public long addOrder(Order order) throws SQLException, AppSqlException{
-        return addEntity(order, addOrder, "order didn't add");
+    public Optional<Long> addOrder(Order order) throws SQLException{
+        return addEntity(order, addOrder);
     }
     @Override
-    public void deleteOrder(long id) throws SQLException, AppSqlException{
+    public Optional<Integer> deleteOrder(long id) throws SQLException, AppSqlException{
         deleteById(id, deleteOrder, "order didn't delete");
     }
     @Override
-    public List<Order> getListByIdUser(long idUser) throws SQLException, AppSqlException{
+    public Optional<List<Order>> getListByIdUser(long idUser) throws SQLException, AppSqlException{
         return getEntityByOneValue(idUser, getListById, "list is empty");
     }
 
 
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException, AppSqlException {
+    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException{
         Order order = (Order)entity;
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
         ps.setLong(1, order.getIdUser());

@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 
 import java.sql.*;
 import java.util.List;
+import java.util.Optional;
 
 abstract class AbstractDao {
     private static final Logger logger = Logger.getLogger(AbstractDao.class);
@@ -30,47 +31,34 @@ abstract class AbstractDao {
         }
 
     }
-    void rollback(Connection con) throws SQLException {
+    void rollback(Connection con, Exception ex) throws SQLException {
         if (con != null) {
-            con.rollback();
-        }
-
-    }
-    void closeConnection(Connection con){
-        daoFactory.closeConnection(con);
-
-    }
-    void closePreparedStatement(PreparedStatement ps) {
-        if(ps != null){
             try {
-                ps.close();
-            } catch (SQLException ex) {
-                logger.error("close preparedStatement exception", ex);
+                con.rollback();
+            }catch (SQLException e){
+                logger.error("rollback exception", e);
+                ex.addSuppressed(e);
             }
         }
-
     }
-    void closeResultSet(ResultSet rs) {
-        if(rs != null){
+    void close(AutoCloseable resource, Exception ex){
+        if (resource != null){
             try {
-                rs.close();
-            } catch (SQLException ex) {
-                logger.error("ResultSet.close() exception", ex);
+                resource.close();
+            } catch (Exception e) {
+                logger.error(resource.getClass().getSimpleName() + " close exception", e);
+                if (ex != null) {
+                    ex.addSuppressed(e);
+                }
             }
         }
-
-    }
-    void throwAppSqlException(boolean condition, String message) throws AppSqlException {
-        if (condition) {
-            throw new AppSqlException(message);
-        }
-
     }
 
-    long addEntity(Object entity, String sqlInsert, String exceptionMessage) throws AppSqlException, SQLException{
+    Optional<Long> addEntity(Object entity, String sqlInsert) throws SQLException{
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
+        Exception exception = null;
         try {
             con = getConnection();
             startTransaction(con);
@@ -79,32 +67,23 @@ abstract class AbstractDao {
             ps.executeUpdate();
 
             rs = ps.getGeneratedKeys();
-            throwAppSqlException(!rs.next(), exceptionMessage);
-
-            long id = rs.getLong(1);
             commit(con);
-            return id;
 
-        } catch (SQLIntegrityConstraintViolationException ex) {
-            try {
-                rollback(con);
-            }catch (SQLException e){
-                this.logger.error("rollback exception", e);
+            if(rs.next()){
+                return Optional.of(rs.getLong(1));
+            } else {
+                return Optional.empty();
             }
-            throw new AppSqlException("phone is duplicate", ex);
 
         } catch (Exception ex){
-            try {
-                rollback(con);
-            }catch (SQLException e){
-                logger.error("rollback exception", e);
-            }
+            rollback(con, ex);
+            exception = ex;
             throw ex;
 
         } finally {
-            closeResultSet(rs);
-            closePreparedStatement(ps);
-            closeConnection(con);
+            close(rs, exception);
+            close(ps, exception);
+            close(con, exception);
         }
     }
     List getEntityByOneValue(Object value, String sqlSelect, String exceptionMessage)throws AppSqlException, SQLException{
@@ -173,6 +152,6 @@ abstract class AbstractDao {
         }
     }
 
-    abstract PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException, AppSqlException;
+    abstract PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException;
     abstract List handleResultSet(ResultSet rs) throws SQLException;
 }
