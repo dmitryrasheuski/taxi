@@ -33,10 +33,10 @@ public class OrderService implements IGetTripList, ICreateOrder {
             User user = authenticationUser(phone);
             Car car = searchCarForOrder(from, where, comments);
             order = OrderBuilder.createOrder().setIdUser(user.getId()).setIdCar(car.getId()).setFrom(from).setWhere(where).setComments(comments).getOrder();
-            long idOrder = orderDao.addOrder(order);
+            long idOrder = orderDao.addOrder(order).orElseThrow(NullPointerException::new);
             order.setId(idOrder);
-        } catch (SQLException |AppSqlException ex) {
-            logger.info("createOrder(int, Str, Str, Str) catch (SQLException | AppSqlException ex) : (orderDao.addOrder(Order) || authenticationUser(int) || searchCarForOrder(St, Str, Str)) throw exception");
+        } catch (SQLException | NullPointerException ex) {
+            logger.info("createOrder(int, Str, Str, Str) catch (SQLException | NullPointerException ex) : (orderDao.addOrder(Order) || authenticationUser(int) || searchCarForOrder(St, Str, Str)) throw exception");
             throw new AppServiceException(ex);
         }
 
@@ -49,9 +49,9 @@ public class OrderService implements IGetTripList, ICreateOrder {
 
         List<Order> orderList = null;
         try {
-            orderList = orderDao.getListByIdUser(idUser);
-        } catch (SQLException | AppSqlException ex) {
-            logger.info("getTripList(long) catch (SQLException | AppSqlException ex) : orderDao.getListByIdUser(long) throw exception");
+            orderList = orderDao.getListByIdUser(idUser).orElseThrow(NullPointerException::new);
+        } catch (SQLException | NullPointerException ex) {
+            logger.info("getTripList(long) catch (SQLException | NullPointerException ex) : orderDao.getListByIdUser(long) throw exception");
             throw new AppServiceException(ex);
         }
 
@@ -59,22 +59,22 @@ public class OrderService implements IGetTripList, ICreateOrder {
         return orderList;
     }
 
-    private User authenticationUser(int phone) throws SQLException, AppSqlException {
+    private User authenticationUser(int phone) throws SQLException {
         logger.debug("start authentication(int)");
 
         UserDao userDao = daoFactory.getUserDao();
         User user = null;
         try {
-            user = userDao.getByPhone(phone);
-        } catch (AppSqlException | SQLException ex) {
-            logger.info("authentication(int) catch (AppSqlException | SQLException ex) {} : userDao.getByPhone(int) throw exception");
-
+            user = userDao.getByPhone(phone).orElseThrow(NullPointerException::new);
+        } catch (SQLException | NullPointerException ex) {
+            logger.info("authentication(int) catch (SQLException | NullPointerException ex) {} : userDao.getByPhone(int) throw exception");
+            //database did'n have the user, then the phone add to database
             user = UserBuilder.createUser().setPhone(phone).getUser();
             long idUser = 0;
             try {
-                idUser = userDao.addUser(user);
-            } catch (AppSqlException | SQLException e){
-                logger.info("authentication(int) catch (AppSqlException | SQLException ex) {} : userDao.addUser(User) throw exception");
+                idUser = userDao.addUser(user).orElseThrow(NullPointerException::new);
+            } catch (SQLException | NullPointerException e){
+                logger.info("authentication(int) catch (SQLException | NullPointerException ex) {} : userDao.addUser(User) throw exception");
                 e.addSuppressed(ex);
                 throw e;
             }
@@ -85,15 +85,15 @@ public class OrderService implements IGetTripList, ICreateOrder {
         logger.debug("finish authentication(int)");
         return user;
     }
-    private Car searchCarForOrder(String from, String where, String comments) throws SQLException, AppSqlException {
+    private Car searchCarForOrder(String from, String where, String comments) throws SQLException {
         logger.debug("start searchCarForOrder(Str, Str, Str)");
 
         CarDao carDao = daoFactory.getCarDao();
         List<Car> carList = null;
         try {
-            carList = carDao.getListCarsByStatus(true);
-        } catch (SQLException | AppSqlException ex){
-            logger.info("searchCarForOrder(Sts, Str, Str) catch (SQLException | AppSqlException ex) {} : carDao.getListCarsByStatus(boolean) throw exception");
+            carList = carDao.getListCarsByStatus(true).orElseThrow(NullPointerException::new);
+        } catch (SQLException | NullPointerException ex){
+            logger.info("searchCarForOrder(Sts, Str, Str) catch (SQLException | NullPointerException ex) {} : carDao.getListCarsByStatus(boolean) throw exception");
             throw ex;
         }
         int listSize = carList.size();

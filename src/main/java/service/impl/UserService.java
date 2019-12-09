@@ -1,6 +1,5 @@
 package service.impl;
 
-import appException.dao.AppSqlException;
 import appException.service.AppServiceException;
 import dao.interfaces.DaoFactory;
 import dao.interfaces.UserDao;
@@ -22,9 +21,9 @@ public class UserService implements ILogin, IRegistryUser {
 
         User user = null;
         try {
-            user = userDao.getByPhone(phone);
-        } catch (SQLException | AppSqlException ex) {
-            logger.info("login(int phone, String password) catch(SQLException | AppSqlException){} : userDao.getByPhone(int) throw exception");
+            user = userDao.getByPhone(phone).orElseThrow(NullPointerException::new);
+        } catch (SQLException |NullPointerException ex) {
+            logger.info("login(int phone, String password) catch(SQLException | NullPointerException){} : userDao.getByPhone(int) throw exception");
             throw new AppServiceException(ex);
         }
         if (!user.getPassword().equals(password)) {
@@ -41,29 +40,32 @@ public class UserService implements ILogin, IRegistryUser {
 
         User dbUser = null;
         try {
-            dbUser = userDao.getByPhone(newUser.getPhone());
-        } catch (AppSqlException | SQLException ex) {
+            dbUser = userDao.getByPhone(newUser.getPhone()).orElseThrow(NullPointerException::new);
+        } catch (SQLException | NullPointerException ex) {
             logger.info("ignore exception", ex);
         }
 
         long id = 0;
+        //new user
         if(dbUser == null){
             try {
-                id = userDao.addUser(newUser);
-            } catch (SQLException |AppSqlException ex) {
-                logger.info("registry(User newUser) catch(SQLException | AppSqlException){} : userDao.addUser throw exception");
+                id = userDao.addUser(newUser).orElseThrow(NullPointerException::new);
+            } catch (SQLException | NullPointerException ex) {
+                logger.info("registry(User newUser) catch(SQLException | NullPointerException){} : userDao.addUser throw exception");
                 throw new AppServiceException(ex);
             }
+        //The database have user, but user isn"t register
         } else if ((dbUser.getName()==null) && (dbUser.getSurname()==null) && (dbUser.getPassword()==null)){
             id = dbUser.getId();
             try {
-                userDao.updateName(id, newUser.getName());
-                userDao.updateSurname(id, newUser.getSurname());
-                userDao.updatePassword(id, newUser.getPassword());
-            } catch (SQLException |AppSqlException ex) {
-                logger.info("registry(User newUser) catch(SQLException | AppSqlException){} : userDao.update throw exception");
+                userDao.updateName(id, newUser.getName()).orElseThrow(NullPointerException::new);
+                userDao.updateSurname(id, newUser.getSurname()).orElseThrow(NullPointerException::new);
+                userDao.updatePassword(id, newUser.getPassword()).orElseThrow(NullPointerException::new);
+            } catch (SQLException | NullPointerException ex) {
+                logger.info("registry(User newUser) catch(SQLException){} : userDao.update throw exception");
                 throw new AppServiceException(ex);
             }
+        //The database user with this name and surname
         } else {
             logger.info("new user didn't registry because user with this phone have name, surname and password");
             throw new AppServiceException("new user didn't registry");
@@ -72,7 +74,5 @@ public class UserService implements ILogin, IRegistryUser {
         newUser.setId(id);
         logger.debug("finish registry(User newUser)");
         return newUser;
-
     }
-
 }

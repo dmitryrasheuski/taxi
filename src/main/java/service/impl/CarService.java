@@ -1,6 +1,5 @@
 package service.impl;
 
-import appException.dao.AppSqlException;
 import appException.service.AppServiceException;
 import dao.interfaces.DaoFactory;
 import dao.interfaces.CarDao;
@@ -22,9 +21,9 @@ public class CarService implements IGetCar {
         Car car = null;
 
         try {
-            car = carDao.getCarById(idCar);
-        } catch (AppSqlException | SQLException ex) {
-            logger.info("getCar(long) catch (SQLException | AppSqlException ex) : carDao.getCarById(long) throw exception");
+            car = carDao.getCarById(idCar).orElseThrow(NullPointerException::new);
+        } catch (SQLException | NullPointerException ex) {
+            logger.info("getCar(long) catch (SQLException | NullPointerException ex) : carDao.getCarById(long) throw exception");
             throw new AppServiceException(ex);
         }
 
