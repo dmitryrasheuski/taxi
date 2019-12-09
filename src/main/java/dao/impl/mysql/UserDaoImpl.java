@@ -33,27 +33,27 @@ class UserDaoImpl extends AbstractDao implements UserDao {
         return addEntity(user, saveUser);
     }
     @Override
-    public Optional<Integer> deleteUser(long id) throws SQLException, AppSqlException {
+    public Optional<Integer> deleteUser(long id) throws SQLException {
         return deleteById(id, deleteUser);
     }
     @Override
-    public Optional<Integer> updatePhone(long id, int phone) throws SQLException, AppSqlException {
+    public Optional<Integer> updatePhone(long id, int phone) throws SQLException {
         return updateOneColumnById(id, phone, updatePhone);
     }
     @Override
-    public Optional<Integer> updateName(long id, String name) throws SQLException, AppSqlException{
+    public Optional<Integer> updateName(long id, String name) throws SQLException {
         return updateOneColumnById(id, name, updateName);
     }
     @Override
-    public Optional<Integer> updateSurname(long id, String surname) throws SQLException, AppSqlException{
+    public Optional<Integer> updateSurname(long id, String surname) throws SQLException {
         return updateOneColumnById(id, surname, updateSurname);
     }
     @Override
-    public Optional<Integer> updatePassword(long id, String password) throws SQLException, AppSqlException {
+    public Optional<Integer> updatePassword(long id, String password) throws SQLException {
         return updateOneColumnById(id, password, updatePassword);
     }
     @Override
-    public Optional<Integer> updateStatus(long id, String status) throws SQLException, AppSqlException {
+    public Optional<Integer> updateStatus(long id, String status) throws SQLException {
         Connection con = getConnection();
         int idStatus = 0;
 

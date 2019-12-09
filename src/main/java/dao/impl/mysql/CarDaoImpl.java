@@ -29,15 +29,15 @@ class CarDaoImpl extends AbstractDao implements CarDao{
     }
 
     @Override
-    public Optional<Long> addCar(Car car) throws SQLException{
+    public Optional<Long> addCar(Car car) throws SQLException {
         return addEntity(car, addCar);
     }
     @Override
-    public Optional<Integer> deleteCar(long idCar) throws SQLException, AppSqlException{
+    public Optional<Integer> deleteCar(long idCar) throws SQLException {
         return deleteById(idCar, deleteCar);
     }
     @Override
-    public Optional<Integer> updateStatus(long idCar, boolean status) throws SQLException, AppSqlException{
+    public Optional<Integer> updateStatus(long idCar, boolean status) throws SQLException {
         return updateOneColumnById(idCar, status, updateStatus);
     }
     @Override
