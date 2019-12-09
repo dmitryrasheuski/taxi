@@ -1,77 +1,71 @@
 package dao.impl.mysql;
 
-import appException.dao.AppSqlException;
 import dao.interfaces.DaoFactory;
 import dao.interfaces.UserDao;
 import entity.user.User;
 import entity.user.UserBuilder;
 import org.junit.*;
-import org.junit.rules.ExpectedException;
 
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class UserDaoTest {
 
     private static DaoFactory daoFactory;
     private static UserDao userDao;
-    private static User user;
+    private static AtomicInteger i = new AtomicInteger(1);
 
-    private static long id ;
-    private static int phone = 666666666;
-    private static int phoneUpdate = 777777777;
     private static String name = "name";
     private static String surname = "surname";
     private static String password = "password";
-    private static String passwordUpdate = "passUpdate";
     private static String statusDefault = "passenger";
+    private static String passwordUpdate = "passUpdate";
     private static String statusUpdate = "driver";
 
+    private User user;
+    private User dbUser;
 
 
     @BeforeClass
-    public static void setUp() throws Exception {
-
+    public static void setUp(){
         daoFactory = DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL);
         userDao = daoFactory.getUserDao();
-
-        user = UserBuilder.createUser().setPhone(phone).setName(name).setSurname(surname).setPassword(password).getUser();
+    }
+    @AfterClass
+    public static void tearDown(){
+        daoFactory.closeDatasource();
     }
 
-    @AfterClass
-    public static void tearDown() throws Exception {}
-
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    @Test
-    public void addUser() throws SQLException, AppSqlException{
-
-        id = userDao.addUser(user);
-
-        try {
-            expectedException.expect(AppSqlException.class);
-            userDao.addUser(user);
-        }catch (AppSqlException ex){
-
-        }catch (SQLException ex){
-            throw ex;
-        }
-
-
+    @Before
+    public void setUpMethod() throws SQLException {
+        int phone = getUniquePhone();
+        user = UserBuilder.createUser().setPhone(phone).setName(name).setSurname(surname).setPassword(password).getUser();
+        long id = userDao.addUser(user).orElseThrow(NullPointerException::new);
         user.setId(id);
+        //We can add to the database user without status , then the database will set it by default
         user.setStatus(statusDefault);
+    }
+    @After
+    public void tearDownMethod() throws SQLException {
+        userDao.deleteUser(user.getId()).orElseThrow(NullPointerException::new);
+    }
 
-        User userById = userDao.getById(id);
-        Assert.assertEquals(user, userById);
-
-        User userByPhone = userDao.getByPhone(phone);
-        Assert.assertEquals(user, userByPhone);
-
-        userDao.updatePassword(id, passwordUpdate);
-        userDao.updateName(id, surname);
-        userDao.updateSurname(id, name);
-        userDao.updatePhone(id, phoneUpdate);
-        userDao.updateStatus(id, statusUpdate);
+    @Test(expected = SQLIntegrityConstraintViolationException.class)
+    public void addUser() throws SQLException {
+        //User's phone most be unique, else database throw the SQLIntegrityConstraintViolationException
+        userDao.addUser(user);
+    }
+    @Test
+    public void getUser() throws SQLException {
+        dbUser = userDao.getById(user.getId()).orElseThrow(NullPointerException::new);
+        Assert.assertEquals(user, dbUser);
+        dbUser = userDao.getByPhone(user.getPhone()).orElseThrow(NullPointerException::new);
+        Assert.assertEquals(user, dbUser);
+    }
+    @Test
+    public void updateUser() throws SQLException {
+        int phoneUpdate = getUniquePhone();
 
         user.setPassword(passwordUpdate);
         user.setName(surname);
@@ -79,14 +73,18 @@ public class UserDaoTest {
         user.setPhone(phoneUpdate);
         user.setStatus(statusUpdate);
 
-        User userUpdate = userDao.getById(id);
-        Assert.assertEquals(user, userUpdate);
+        userDao.updatePassword(user.getId(), passwordUpdate);
+        userDao.updateName(user.getId(), surname);
+        userDao.updateSurname(user.getId(), name);
+        userDao.updatePhone(user.getId(), phoneUpdate);
+        userDao.updateStatus(user.getId(), statusUpdate);
 
-        userDao.deleteUser(id);
+        dbUser = userDao.getById(user.getId()).orElseThrow(NullPointerException::new);
+        Assert.assertEquals(user, dbUser);
+    }
 
-        expectedException.expect(AppSqlException.class);
-        userDao.getById(id);
-
+    private int getUniquePhone(){
+        return i.getAndIncrement();
     }
 
 }
