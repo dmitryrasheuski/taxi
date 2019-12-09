@@ -1,36 +1,35 @@
 package dao.impl.mysql;
 
-import appException.dao.AppSqlException;
 import dao.interfaces.DaoFactory;
 import dao.interfaces.CarDao;
 import dao.interfaces.UserDao;
 import entity.car.Car;
+import entity.car.CarBuilder;
 import entity.user.User;
 import entity.user.UserBuilder;
 import org.junit.*;
-import org.junit.rules.ExpectedException;
 
-import java.sql.Connection;
 import java.sql.SQLException;;
-import java.util.ArrayList;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CarDaoTest {
 
     private static DaoFactory daoFactory;
     private static UserDao userDao;
     private static CarDao carDao;
-
-    private static Car car;
     private static User driver;
+    private static AtomicInteger i = new AtomicInteger(1);
 
-    private static long id;
-    private static String number = "1397KH5";
     private static String color = "someColor";
     private static String model = "someModel";
     private static boolean statusDefault = false;
     private static boolean statusUpdate = true;
 
+    private Car car;
+    private Car dbCar;
+    private long idCar;
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -38,64 +37,90 @@ public class CarDaoTest {
         carDao = daoFactory.getCarDao();
         userDao = daoFactory.getUserDao();
 
-        car = new Car();
-        driver = createTestDriver(123456789, "driver", "car", "test", "driver");
+        driver = createTestDriver(123456789, "test", "test", "test", "driver");
     }
-
     @AfterClass()
     public static void tearDown() throws Exception {
-        delDriver(driver.getId());
+        userDao.deleteUser(driver.getId());
+        daoFactory.closeDatasource();
     }
 
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    @Test
-    public void test() throws SQLException, AppSqlException {
-
-        car.setNumber(number);
-        car.setColor(color);
-        car.setModel(model);
-        car.setIdDriver(driver.getId());
-
-        id = carDao.addCar(car);
-
-        try {
-            expectedException.expect(AppSqlException.class);
-            carDao.addCar(car);
-        }catch (AppSqlException ex){}
-
-        car.setId(id);
-        car.setStatus(statusDefault);
-
-        Car carById = carDao.getCarById(id);
-        Assert.assertEquals(carById, car);
-
-        Car carByDriver = carDao.getCarByDriver(driver.getId());
-        Assert.assertEquals(carByDriver, car);
-
-        carDao.updateStatus(id, statusUpdate);
-        Car carUpdate = carDao.getCarById(id);
-        car.setStatus(statusUpdate);
-        Assert.assertEquals(carUpdate, car);
-
-        List<Car> list = carDao.getListCarsByStatus(statusUpdate);
-        Assert.assertTrue(list.contains(car));
-
-        carDao.deleteCar(id);
-
-        expectedException.expect(AppSqlException.class);
-        carDao.getCarById(id);
-    }
-
-    private static User createTestDriver(int phone, String name, String surname, String password, String status) throws SQLException, AppSqlException {
+    private static User createTestDriver(int phone, String name, String surname, String password, String status) throws SQLException {
         User d = UserBuilder.createUser().setPhone(phone).setName(name).setSurname(surname).setPassword(password).setStatus(status).getUser();
-        long id = userDao.addUser(d);
+        long id = userDao.addUser(d).orElseThrow(NullPointerException::new);
         d.setId(id);
         return d;
     }
 
-    private static void delDriver(long id) throws SQLException, AppSqlException{
-        userDao.deleteUser(id);
+    @Before
+    public void setUpMethod() throws SQLException{
+        car = produceCar();
+        idCar = carDao.addCar(car).orElseThrow(NullPointerException::new);
+        car.setId(idCar);
+        //If the car was created without "car.status", then the database set default "car.status = false"
+        car.setStatus(statusDefault);
+    }
+    @After
+    public void tearDownMethod() throws SQLException {
+        carDao.deleteCar(idCar).orElseThrow(NullPointerException::new);
+    }
+
+    @Test(expected = SQLIntegrityConstraintViolationException.class)
+    public void addCar() throws SQLException {
+        //The car's number most be unique, else database throw the SQLIntegrityConstraintViolationException
+        carDao.addCar(car);
+    }
+    @Test
+    public void getCar() throws SQLException {
+        dbCar = carDao.getCarById(idCar).orElseThrow(NullPointerException::new);
+        Assert.assertEquals(dbCar, car);
+        dbCar = carDao.getCarByDriver(driver.getId()).orElseThrow(NullPointerException::new);
+        Assert.assertEquals(dbCar, car);
+    }
+    @Test
+    public void updateCar() throws SQLException {
+        car.setStatus(statusUpdate);
+        carDao.updateStatus(idCar, statusUpdate).orElseThrow(NullPointerException::new);
+        dbCar = carDao.getCarById(idCar).orElseThrow(NullPointerException::new);
+        Assert.assertEquals(dbCar, car);
+    }
+    @Test
+    public void getListCar() throws SQLException {
+        car.setStatus(statusUpdate);
+        carDao.updateStatus(idCar, statusUpdate).orElseThrow(NullPointerException::new);
+        Car car_2 = produceCar();
+        car_2.setStatus(statusUpdate);
+        long idCar_2 = carDao.addCar(car_2).orElseThrow(NullPointerException::new);
+        car_2.setId(idCar_2);
+
+        List<Car> list = carDao.getListCarsByStatus(statusUpdate).orElseThrow(NullPointerException::new);
+        Assert.assertTrue(list.contains(car));
+        Assert.assertTrue(list.contains(car_2));
+
+        carDao.deleteCar(car_2.getId()).orElseThrow(NullPointerException::new);
+    }
+
+    private Car produceCar(){
+        Integer count = i.getAndIncrement();
+        String number = count.toString();
+        switch (number.length()) {
+            case (1) : {
+                number = "000" + count + "ТТ0";
+                break;
+            }
+            case (2) : {
+                number = "00" + count + "ТТ0";
+                break;
+            }
+            case (3) : {
+                number = "0" + count + "ТТ0";
+                break;
+            }
+            case (4) : {
+                number = count + "ТТ0";
+                break;
+            }
+        }
+        return CarBuilder.createCar().setIdDriver(driver.getId()).setNumber(number).setModel(model).setColor(color).getCar();
     }
 }
