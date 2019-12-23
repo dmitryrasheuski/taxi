@@ -36,7 +36,7 @@ public class CarBuilder {
 
     }
     public CarBuilder setStatus(boolean status){
-        car.setStatus(status);
+        car.setActive(status);
         return this;
     }
 

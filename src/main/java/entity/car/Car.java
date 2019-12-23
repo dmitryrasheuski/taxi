@@ -8,7 +8,7 @@ public class Car {
     private long idDriver;
     private String color;
     private String model;
-    private boolean status;
+    private boolean active;
 
     public long getId() {
         return id;
@@ -25,8 +25,8 @@ public class Car {
     public String getModel() {
         return model;
     }
-    public boolean getStatus() {
-        return status;
+    public boolean isActive() {
+        return active;
     }
 
     public void setId(long id) {
@@ -44,8 +44,8 @@ public class Car {
     public void setModel(String model) {
         this.model = model;
     }
-    public void setStatus(boolean status) {
-        this.status = status;
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @Override
@@ -55,13 +55,13 @@ public class Car {
         Car car = (Car) o;
         return id == car.id &&
                 idDriver == car.idDriver &&
-                status == car.status &&
+                active == car.active &&
                 Objects.equals(number, car.number) &&
                 Objects.equals(color, car.color) &&
                 Objects.equals(model, car.model);
     }
     @Override
     public int hashCode() {
-        return Objects.hash(id, number, idDriver, color, model, status);
+        return Objects.hash(id, number, idDriver, color, model, active);
     }
 }

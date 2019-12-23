@@ -2,7 +2,6 @@ package dao.impl.mysql;
 
 import dao.interfaces.CarDao;
 import entity.car.Car;
-import appException.dao.AppSqlException;
 import entity.car.CarBuilder;
 import org.apache.log4j.Logger;
 
@@ -118,7 +117,7 @@ class CarDaoImpl extends AbstractDao implements CarDao{
         ps.setLong(2, car.getIdDriver());
         ps.setInt(3, color);
         ps.setInt(4, model);
-        ps.setBoolean(5, car.getStatus());
+        ps.setBoolean(5, car.isActive());
         return ps;
     }
     @Override

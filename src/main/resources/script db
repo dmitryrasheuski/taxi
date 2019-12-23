@@ -40,7 +40,7 @@ create table cars(
   idDriver bigint NOT NULL,
   color int NOT NULL,
   model int NOT NULL,
-  status boolean DEFAULT FALSE ,
+  active boolean DEFAULT FALSE ,
   CONSTRAINT FK_cars_drivers FOREIGN KEY (idDriver) REFERENCES users(id) ON DELETE CASCADE,
   CONSTRAINT FK_cars_color_cars FOREIGN KEY (color) REFERENCES colorCar(id) ON UPDATE CASCADE,
   CONSTRAINT FK_cars_model_car FOREIGN KEY (model) REFERENCES modelCar(id) ON UPDATE CASCADE

@@ -58,7 +58,7 @@ public class CarDaoTest {
         idCar = carDao.addCar(car).orElseThrow(NullPointerException::new);
         car.setId(idCar);
         //If the car was created without "car.status", then the database set default "car.status = false"
-        car.setStatus(statusDefault);
+        car.setActive(statusDefault);
     }
     @After
     public void tearDownMethod() throws SQLException {
@@ -79,17 +79,17 @@ public class CarDaoTest {
     }
     @Test
     public void updateCar() throws SQLException {
-        car.setStatus(statusUpdate);
+        car.setActive(statusUpdate);
         carDao.updateStatus(idCar, statusUpdate).orElseThrow(NullPointerException::new);
         dbCar = carDao.getCarById(idCar).orElseThrow(NullPointerException::new);
         Assert.assertEquals(dbCar, car);
     }
     @Test
     public void getListCar() throws SQLException {
-        car.setStatus(statusUpdate);
+        car.setActive(statusUpdate);
         carDao.updateStatus(idCar, statusUpdate).orElseThrow(NullPointerException::new);
         Car car_2 = produceCar();
-        car_2.setStatus(statusUpdate);
+        car_2.setActive(statusUpdate);
         long idCar_2 = carDao.addCar(car_2).orElseThrow(NullPointerException::new);
         car_2.setId(idCar_2);
 
