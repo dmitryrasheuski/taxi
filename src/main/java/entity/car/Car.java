@@ -1,8 +1,10 @@
 package entity.car;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class Car {
     private long id;
     private String number;
