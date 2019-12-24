@@ -6,7 +6,6 @@ import dao.interfaces.OrderDao;
 import dao.interfaces.UserDao;
 import entity.car.Car;
 import entity.order.Order;
-import entity.order.OrderBuilder;
 import entity.user.User;
 import org.junit.*;
 
@@ -50,7 +49,7 @@ public class OrderDaoTest {
 
     @Before
     public void setUpMethod() throws SQLException {
-        order = OrderBuilder.createOrder().setIdUser(passenger.getId()).setIdCar(car.getId()).setFrom(from).setWhere(where).setComments(comments).getOrder();
+        order = Order.builder().idUser(passenger.getId()).idCar(car.getId()).from(from).where(where).comments(comments).build();
         long id = orderDao.addOrder(order).orElseThrow(NullPointerException::new);
         order.setId(id);
     }
@@ -61,7 +60,7 @@ public class OrderDaoTest {
 
     @Test
     public void getListOrderByUser() throws SQLException {
-        Order order_2 = OrderBuilder.createOrder().setIdUser(passenger.getId()).setIdCar(car.getId()).setFrom(from).setWhere(where).setComments(comments).getOrder();
+        Order order_2 = Order.builder().idUser(passenger.getId()).idCar(car.getId()).from(from).where(where).comments(comments).build();
         long id2 = orderDao.addOrder(order_2).orElseThrow(NullPointerException::new);
         order_2.setId(id2);
 

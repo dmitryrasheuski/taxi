@@ -1,9 +1,7 @@
 package dao.impl.mysql;
 
-import appException.dao.AppSqlException;
 import dao.interfaces.OrderDao;
 import entity.order.Order;
-import entity.order.OrderBuilder;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
@@ -67,7 +65,7 @@ class OrderDaoImpl extends AbstractDao implements OrderDao {
             from = rs.getString("from");
             where = rs.getString("where");
             comments = rs.getString("comments");
-            order = OrderBuilder.createOrder().setId(id).setIdUser(idUser).setIdCar(idCar).setFrom(from).setWhere(where).setComments(comments).getOrder();
+            order = Order.builder().id(id).idUser(idUser).idCar(idCar).from(from).where(where).comments(comments).build();
             list.add(order);
         } while (rs.next());
 

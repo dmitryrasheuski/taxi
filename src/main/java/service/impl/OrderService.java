@@ -1,6 +1,5 @@
 package service.impl;
 
-import appException.dao.AppSqlException;
 import appException.service.AppServiceException;
 import dao.interfaces.DaoFactory;
 import dao.interfaces.CarDao;
@@ -8,7 +7,6 @@ import dao.interfaces.OrderDao;
 import dao.interfaces.UserDao;
 import entity.car.Car;
 import entity.order.Order;
-import entity.order.OrderBuilder;
 import entity.user.User;
 import org.apache.log4j.Logger;
 import service.interfaces.ICreateOrder;
@@ -31,7 +29,7 @@ public class OrderService implements IGetTripList, ICreateOrder {
         try {
             User user = authenticationUser(phone);
             Car car = searchCarForOrder(from, where, comments);
-            order = OrderBuilder.createOrder().setIdUser(user.getId()).setIdCar(car.getId()).setFrom(from).setWhere(where).setComments(comments).getOrder();
+            order = Order.builder().idUser(user.getId()).idCar(car.getId()).from(from).where(where).comments(comments).build();
             long idOrder = orderDao.addOrder(order).orElseThrow(NullPointerException::new);
             order.setId(idOrder);
         } catch (SQLException | NullPointerException ex) {
