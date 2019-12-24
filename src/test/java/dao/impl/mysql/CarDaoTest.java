@@ -5,6 +5,8 @@ import dao.interfaces.CarDao;
 import dao.interfaces.UserDao;
 import entity.car.Car;
 import entity.user.User;
+import entity.user.UserStatus;
+import entity.user.UserStatusType;
 import org.junit.*;
 
 import java.sql.SQLException;;
@@ -44,7 +46,13 @@ public class CarDaoTest {
     }
 
     private static User createTestDriver(int phone, String name, String surname, String password, String status) throws SQLException {
-        User d = User.builder().phone(phone).name(name).surname(surname).password(password).status(status).build();
+        User d = User.builder()
+                .phone(phone)
+                .name(name)
+                .surname(surname)
+                .password(password)
+                .status(UserStatus.getInstance(UserStatusType.valueOf(status.toUpperCase())))
+                .build();
         long id = userDao.addUser(d).orElseThrow(NullPointerException::new);
         d.setId(id);
         return d;

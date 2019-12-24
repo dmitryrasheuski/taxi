@@ -2,6 +2,8 @@ package dao.impl.mysql;
 
 import dao.interfaces.UserDao;
 import entity.user.User;
+import entity.user.UserStatus;
+import entity.user.UserStatusType;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
@@ -20,7 +22,6 @@ class UserDaoImpl extends AbstractDao implements UserDao {
     private static final String updateStatus = "UPDATE users SET status = ? WHERE id = ?";
     private static final String getUserById = "SELECT u.id, u.phone, u.name, u.surname, u.password, s.status FROM users AS u LEFT JOIN userStatus AS s ON u.status = s.id WHERE u.id = ?";
     private static final String getUserByPhone = "SELECT u.id, u.phone, u.name, u.surname, u.password, s.status FROM users AS u LEFT JOIN userStatus AS s ON u.status = s.id WHERE u.phone = ?";
-    private static final String getStatusId = "SELECT id FROM userStatus WHERE status = ?";
 
     UserDaoImpl(MysqlDaoFactory daoFactory) {
         super(daoFactory);
@@ -51,16 +52,8 @@ class UserDaoImpl extends AbstractDao implements UserDao {
         return updateOneColumnById(id, password, updatePassword);
     }
     @Override
-    public Optional<Integer> updateStatus(long id, String status) throws SQLException {
-        Connection con = getConnection();
-        int idStatus = 0;
-
-        try {
-            idStatus = getStatusId(status, con).orElseThrow(() -> new IllegalArgumentException("user status was didn't found"));
-        } finally {
-            close(con, new Exception());
-        }
-
+    public Optional<Integer> updateStatus(long id, UserStatus status) throws SQLException {
+        int idStatus =  status.getId();
         return updateOneColumnById(id, idStatus, updateStatus);
     }
     @Override
@@ -74,40 +67,11 @@ class UserDaoImpl extends AbstractDao implements UserDao {
                 .flatMap((list) -> Optional.of((User)list.get(0)));
     }
 
-    private Optional<Integer> getStatusId(String status, Connection con) throws SQLException{
-        if (status == null || status.isEmpty()) {
-            status = "passenger";
-        }
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        Exception exception = null;
-        try {
-            ps = con.prepareStatement(getStatusId);
-            ps.setString(1, status);
-
-            rs = ps.executeQuery();
-
-            if(rs.next()) {
-                return Optional.of(rs.getInt("id"));
-            } else {
-                return Optional.empty();
-            }
-
-        } catch (Exception ex) {
-            exception = ex;
-            throw ex
-                    ;
-        } finally {
-            close(rs, exception);
-            close(ps, exception);
-        }
-    }
 
     @Override
     PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity)  throws SQLException{
         User user = (User) entity;
-        int statusId = getStatusId(user.getStatus(), con).orElseThrow(() -> new IllegalArgumentException("user status was didn't found"));
-
+        int statusId = user.getStatus().getId();
         ps = con.prepareStatement(saveUser, Statement.RETURN_GENERATED_KEYS);
         ps.setInt(1, user.getPhone());
         ps.setString(2, user.getName());
@@ -137,7 +101,15 @@ class UserDaoImpl extends AbstractDao implements UserDao {
             surname = rs.getString("surname");
             password = rs.getString("password");
             status = rs.getString("status");
-            user = User.builder().id(id).phone(phone).name(name).surname(surname).password(password).status(status).build();
+
+            user = User.builder()
+                    .id(id)
+                    .phone(phone)
+                    .name(name)
+                    .surname(surname)
+                    .password(password)
+                    .status(UserStatus.getInstance(UserStatusType.valueOf(status.toUpperCase())))
+                    .build();
             list.add(user);
         } while (rs.next());
 

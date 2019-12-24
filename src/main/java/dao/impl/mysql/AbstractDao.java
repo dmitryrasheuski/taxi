@@ -9,7 +9,7 @@ import java.util.Optional;
 
 abstract class AbstractDao {
     private static final Logger logger = Logger.getLogger(AbstractDao.class);
-    private MysqlDaoFactory daoFactory;
+    protected MysqlDaoFactory daoFactory;
 
     AbstractDao(MysqlDaoFactory factory) {
         this.daoFactory = factory;

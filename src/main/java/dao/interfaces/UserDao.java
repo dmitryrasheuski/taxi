@@ -1,6 +1,7 @@
 package dao.interfaces;
 
 import entity.user.User;
+import entity.user.UserStatus;
 
 import java.sql.SQLException;
 import java.util.Optional;
@@ -13,7 +14,7 @@ public interface UserDao {
     Optional<Integer> updateName(long id, String name) throws SQLException;
     Optional<Integer> updateSurname(long id, String surname) throws SQLException;
     Optional<Integer> updatePassword(long id, String password) throws SQLException;
-    Optional<Integer> updateStatus(long id, String status) throws SQLException;
+    Optional<Integer> updateStatus(long id, UserStatus status) throws SQLException;
     Optional<User> getById(long id) throws SQLException;
     Optional<User> getByPhone(int phone) throws SQLException;
 }

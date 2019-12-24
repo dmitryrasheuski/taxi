@@ -3,6 +3,8 @@ package dao.impl.mysql;
 import dao.interfaces.DaoFactory;
 import dao.interfaces.UserDao;
 import entity.user.User;
+import entity.user.UserStatus;
+import entity.user.UserStatusType;
 import org.junit.*;
 
 import java.sql.SQLException;
@@ -18,9 +20,9 @@ public class UserDaoTest {
     private static String name = "name";
     private static String surname = "surname";
     private static String password = "password";
-    private static String statusDefault = "passenger";
+    private static UserStatus statusDefault = UserStatus.getInstance(UserStatusType.PASSENGER);
     private static String passwordUpdate = "passUpdate";
-    private static String statusUpdate = "driver";
+    private static UserStatus statusUpdate = UserStatus.getInstance(UserStatusType.DRIVER);
 
     private User user;
     private User dbUser;
@@ -39,11 +41,15 @@ public class UserDaoTest {
     @Before
     public void setUpMethod() throws SQLException {
         int phone = getUniquePhone();
-        user = User.builder().phone(phone).name(name).surname(surname).password(password).build();
+        user = User.builder()
+                .phone(phone)
+                .name(name)
+                .surname(surname)
+                .password(password)
+                .status(statusDefault)
+                .build();
         long id = userDao.addUser(user).orElseThrow(NullPointerException::new);
         user.setId(id);
-        //We can add to the database user without status , then the database will set it by default
-        user.setStatus(statusDefault);
     }
     @After
     public void tearDownMethod() throws SQLException {

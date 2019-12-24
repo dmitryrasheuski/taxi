@@ -1,9 +1,6 @@
 package dao.impl.mysql;
 
-import dao.interfaces.DaoFactory;
-import dao.interfaces.CarDao;
-import dao.interfaces.OrderDao;
-import dao.interfaces.UserDao;
+import dao.interfaces.*;
 import org.apache.log4j.Logger;
 
 import java.beans.PropertyVetoException;
@@ -11,35 +8,29 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class MysqlDaoFactory implements DaoFactory {
-    private static final Logger logger = Logger.getLogger(MysqlDaoFactory.class);
-    private ConnectionPool connectionPool;
-
-    public MysqlDaoFactory() throws RuntimeException {
+    private static final Logger logger;
+    private static final ConnectionPool connectionPool;
+    static {
+        logger = Logger.getLogger(MysqlDaoFactory.class);
         try {
             connectionPool = ConnectionPool.getInstance();
         } catch (PropertyVetoException ex) {
             logger.error("init ConnectionPool exception", ex);
             throw new RuntimeException("init ConnectionPool exception", ex);
         }
-
     }
 
     Connection getConnection() throws SQLException {
         return connectionPool.getConnection();
     }
-    void closeConnection(Connection con){
-        if(con != null){
-            try {
-                con.close();
-            } catch (SQLException ex){
-                logger.error("close connection exception", ex);
-            }
-        }
-    }
 
     @Override
     public UserDao getUserDao() {
         return new UserDaoImpl(this);
+    }
+    @Override
+    public UserStatusDao getUserStatusDao() {
+        return new UserStatusDaoImpl(this);
     }
     @Override
     public OrderDao getOrderDao() {

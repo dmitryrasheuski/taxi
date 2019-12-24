@@ -7,6 +7,8 @@ import dao.interfaces.UserDao;
 import entity.car.Car;
 import entity.order.Order;
 import entity.user.User;
+import entity.user.UserStatus;
+import entity.user.UserStatusType;
 import org.junit.*;
 
 import java.sql.SQLException;
@@ -72,13 +74,25 @@ public class OrderDaoTest {
     }
 
     private static User createTestDriver() throws SQLException {
-        User d = User.builder().phone(101).name("driver").surname("order").password("test").status("driver").build();
+        User d = User.builder()
+                .phone(101)
+                .name("driver")
+                .surname("order")
+                .password("test")
+                .status(UserStatus.getInstance(UserStatusType.DRIVER))
+                .build();
         long id = userDao.addUser(d).orElseThrow(NullPointerException::new);
         d.setId(id);
         return d;
     }
     private static User createTestPassenger() throws SQLException {
-        User p = User.builder().phone(102).name("passenger").surname("order").password("test").build();
+        User p = User.builder()
+                .phone(102)
+                .name("passenger")
+                .surname("order")
+                .password("test")
+                .status(UserStatus.getInstance(UserStatusType.PASSENGER))
+                .build();
         long id = userDao.addUser(p).orElseThrow(NullPointerException::new);
         p.setId(id);
         return p;

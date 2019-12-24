@@ -11,5 +11,5 @@ public class User {
     private String name;
     private String surname;
     private String password;
-    private String status;
+    private UserStatus status;
 }
