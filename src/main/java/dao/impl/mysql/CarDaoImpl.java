@@ -2,7 +2,6 @@ package dao.impl.mysql;
 
 import dao.interfaces.CarDao;
 import entity.car.Car;
-import entity.car.CarBuilder;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
@@ -141,7 +140,7 @@ class CarDaoImpl extends AbstractDao implements CarDao{
             color = rs.getString("color");
             model = rs.getString("model");
             status = rs.getBoolean("status");
-            car = CarBuilder.createCar().setId(id).setIdDriver(idDriver).setNumber(number).setColor(color).setModel(model).setStatus(status).getCar();
+            car = Car.builder().id(id).idDriver(idDriver).number(number).color(color).model(model).active(status).build();
             carList.add(car);
         } while (rs.next());
 

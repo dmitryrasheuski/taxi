@@ -4,7 +4,6 @@ import dao.interfaces.DaoFactory;
 import dao.interfaces.CarDao;
 import dao.interfaces.UserDao;
 import entity.car.Car;
-import entity.car.CarBuilder;
 import entity.user.User;
 import org.junit.*;
 
@@ -120,6 +119,6 @@ public class CarDaoTest {
                 break;
             }
         }
-        return CarBuilder.createCar().setIdDriver(driver.getId()).setNumber(number).setModel(model).setColor(color).getCar();
+        return Car.builder().idDriver(driver.getId()).number(number).model(model).color(color).build();
     }
 }

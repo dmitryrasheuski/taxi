@@ -5,7 +5,6 @@ import dao.interfaces.CarDao;
 import dao.interfaces.OrderDao;
 import dao.interfaces.UserDao;
 import entity.car.Car;
-import entity.car.CarBuilder;
 import entity.order.Order;
 import entity.order.OrderBuilder;
 import entity.user.User;
@@ -86,7 +85,7 @@ public class OrderDaoTest {
         return p;
     }
     private static Car createTestCar(long idDriver) throws SQLException {
-        Car c = CarBuilder.createCar().setNumber("1395КН5").setIdDriver(idDriver).setColor("testColor").setModel("testModel").setStatus(true).getCar();
+        Car c = Car.builder().number("1395КН5").idDriver(idDriver).color("testColor").model("testModel").active(true).build();
         long id = carDao.addCar(c).orElseThrow(NullPointerException::new);
         c.setId(id);
         return c;
