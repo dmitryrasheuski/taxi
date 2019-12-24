@@ -1,9 +1,7 @@
 package dao.impl.mysql;
 
-import appException.dao.AppSqlException;
 import dao.interfaces.UserDao;
 import entity.user.User;
-import entity.user.UserBuilder;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
@@ -139,7 +137,7 @@ class UserDaoImpl extends AbstractDao implements UserDao {
             surname = rs.getString("surname");
             password = rs.getString("password");
             status = rs.getString("status");
-            user = UserBuilder.createUser().setId(id).setPhone(phone).setName(name).setSurname(surname).setPassword(password).setStatus(status).getUser();
+            user = User.builder().id(id).phone(phone).name(name).surname(surname).password(password).status(status).build();
             list.add(user);
         } while (rs.next());
 

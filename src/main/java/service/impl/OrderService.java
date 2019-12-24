@@ -10,7 +10,6 @@ import entity.car.Car;
 import entity.order.Order;
 import entity.order.OrderBuilder;
 import entity.user.User;
-import entity.user.UserBuilder;
 import org.apache.log4j.Logger;
 import service.interfaces.ICreateOrder;
 import service.interfaces.IGetTripList;
@@ -69,7 +68,7 @@ public class OrderService implements IGetTripList, ICreateOrder {
         } catch (SQLException | NullPointerException ex) {
             logger.info("authentication(int) catch (SQLException | NullPointerException ex) {} : userDao.getByPhone(int) throw exception");
             //database did'n have the user, then the phone add to database
-            user = UserBuilder.createUser().setPhone(phone).getUser();
+            user = User.builder().phone(phone).build();
             long idUser = 0;
             try {
                 idUser = userDao.addUser(user).orElseThrow(NullPointerException::new);

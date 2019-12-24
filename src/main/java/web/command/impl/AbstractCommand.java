@@ -2,7 +2,6 @@ package web.command.impl;
 
 import appException.controller.AppRequestParameterException;
 import entity.user.User;
-import entity.user.UserBuilder;
 import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,7 +62,7 @@ abstract class AbstractCommand{
         String status = getParameter("status", false);
 
         logger.debug("finish userByRequest()");
-        return UserBuilder.createUser().setPhone(phone).setName(name).setSurname(surname).setPassword(password).setStatus(status).getUser();
+        return User.builder().phone(phone).name(name).surname(surname).password(password).status(status).build();
 
     }
 

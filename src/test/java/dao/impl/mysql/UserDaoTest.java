@@ -3,7 +3,6 @@ package dao.impl.mysql;
 import dao.interfaces.DaoFactory;
 import dao.interfaces.UserDao;
 import entity.user.User;
-import entity.user.UserBuilder;
 import org.junit.*;
 
 import java.sql.SQLException;
@@ -40,7 +39,7 @@ public class UserDaoTest {
     @Before
     public void setUpMethod() throws SQLException {
         int phone = getUniquePhone();
-        user = UserBuilder.createUser().setPhone(phone).setName(name).setSurname(surname).setPassword(password).getUser();
+        user = User.builder().phone(phone).name(name).surname(surname).password(password).build();
         long id = userDao.addUser(user).orElseThrow(NullPointerException::new);
         user.setId(id);
         //We can add to the database user without status , then the database will set it by default
