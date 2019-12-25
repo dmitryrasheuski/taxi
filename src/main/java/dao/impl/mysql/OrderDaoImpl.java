@@ -1,6 +1,7 @@
 package dao.impl.mysql;
 
 import dao.interfaces.OrderDao;
+import entity.order.Address;
 import entity.order.Order;
 import org.apache.log4j.Logger;
 
@@ -36,11 +37,14 @@ class OrderDaoImpl extends AbstractDao implements OrderDao {
     @Override
     PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException {
         Order order = (Order)entity;
+        Address from = order.getFrom();
+        Address where = order.getWhere();
+
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-        ps.setLong(1, order.getIdUser());
-        ps.setLong(2, order.getIdCar());
-        ps.setString(3, order.getFrom());
-        ps.setString(4, order.getWhere());
+        ps.setLong(1, order.getPassenger().getId());
+        ps.setLong(2, order.getCar().getId());
+        ps.setString(3, from.getTitle());
+        ps.setString(4, where.getTitle());
         ps.setString(5, order.getComments());
         return ps;
     }
@@ -65,7 +69,14 @@ class OrderDaoImpl extends AbstractDao implements OrderDao {
             from = rs.getString("from");
             where = rs.getString("where");
             comments = rs.getString("comments");
-            order = Order.builder().id(id).idUser(idUser).idCar(idCar).from(from).where(where).comments(comments).build();
+            order = Order.builder()
+                    .id(id)
+                    .passenger(daoFactory.getUserDao().getById(idUser).orElseThrow(() -> new NullPointerException("User was not found")))
+                    .car(daoFactory.getCarDao().getCarById(idCar).orElseThrow(() -> new NullPointerException("Car was not found")))
+                    .from(new Address(from))
+                    .where(new Address(where))
+                    .comments(comments)
+                    .build();
             list.add(order);
         } while (rs.next());
 
