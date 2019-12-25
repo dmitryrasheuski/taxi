@@ -1,5 +1,6 @@
 package entity.car;
 
+import entity.user.User;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,8 +9,8 @@ import lombok.Data;
 public class Car {
     private long id;
     private String number;
-    private long idDriver;
-    private String color;
-    private String model;
+    private User driver;
+    private Color color;
+    private CarModel model;
     private boolean active;
 }
