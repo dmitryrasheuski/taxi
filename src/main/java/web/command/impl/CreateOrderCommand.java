@@ -33,7 +33,7 @@ class CreateOrderCommand extends AbstractCommand  implements Command {
         String where = getParameter("where", true);
         String comments = getParameter("comments", false);
         Order order = service.createOrder(phone, from, where, comments);
-        Car car = carService.getCar(order.getIdCar());
+        Car car = order.getCar();
         req.getSession().setAttribute("car", car);
 
         logger.debug("finish execute()");

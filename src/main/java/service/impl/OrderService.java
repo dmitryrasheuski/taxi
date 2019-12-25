@@ -6,6 +6,7 @@ import dao.interfaces.CarDao;
 import dao.interfaces.OrderDao;
 import dao.interfaces.UserDao;
 import entity.car.Car;
+import entity.order.Address;
 import entity.order.Order;
 import entity.user.User;
 import org.apache.log4j.Logger;
@@ -22,14 +23,22 @@ public class OrderService implements IGetTripList, ICreateOrder {
     private OrderDao orderDao = daoFactory.getOrderDao();
 
     @Override
-    public Order createOrder(int phone, String from, String where, String comments) throws AppServiceException {
+    public Order createOrder(int phone, String fromStr, String whereStr, String comments) throws AppServiceException {
         logger.debug("start createOrder(int, Str, Str, Str)");
 
         Order order = null;
         try {
-            User user = authenticationUser(phone);
-            Car car = searchCarForOrder(from, where, comments);
-            order = Order.builder().idUser(user.getId()).idCar(car.getId()).from(from).where(where).comments(comments).build();
+            User passenger = authenticationUser(phone);
+            Car car = searchCarForOrder(fromStr, whereStr, comments);
+            Address from = new Address(fromStr);
+            Address where = new Address(whereStr);
+            order = Order.builder()
+                    .passenger(passenger)
+                    .car(car)
+                    .from(from)
+                    .where(where)
+                    .comments(comments)
+                    .build();
             long idOrder = orderDao.addOrder(order).orElseThrow(NullPointerException::new);
             order.setId(idOrder);
         } catch (SQLException | NullPointerException ex) {
