@@ -7,6 +7,7 @@ import dao.interfaces.UserDao;
 import entity.car.Car;
 import entity.car.CarModel;
 import entity.car.Color;
+import entity.order.Address;
 import entity.order.Order;
 import entity.user.User;
 import entity.user.UserStatus;
@@ -23,8 +24,8 @@ public class OrderDaoTest {
     private static UserDao userDao;
     private static CarDao carDao;
 
-    private static String from = "from";
-    private static String where = "where";
+    private static Address from = new Address("from");
+    private static Address where = new Address("where");
     private static String comments = "comments";
 
     private static User passenger;
@@ -53,7 +54,13 @@ public class OrderDaoTest {
 
     @Before
     public void setUpMethod() throws SQLException {
-        order = Order.builder().idUser(passenger.getId()).idCar(car.getId()).from(from).where(where).comments(comments).build();
+        order = Order.builder()
+                .passenger(passenger)
+                .car(car)
+                .from(from)
+                .where(where)
+                .comments(comments)
+                .build();
         long id = orderDao.addOrder(order).orElseThrow(NullPointerException::new);
         order.setId(id);
     }
@@ -64,7 +71,13 @@ public class OrderDaoTest {
 
     @Test
     public void getListOrderByUser() throws SQLException {
-        Order order_2 = Order.builder().idUser(passenger.getId()).idCar(car.getId()).from(from).where(where).comments(comments).build();
+        Order order_2 = Order.builder()
+                .passenger(passenger)
+                .car(car)
+                .from(from)
+                .where(where)
+                .comments(comments)
+                .build();
         long id2 = orderDao.addOrder(order_2).orElseThrow(NullPointerException::new);
         order_2.setId(id2);
 
