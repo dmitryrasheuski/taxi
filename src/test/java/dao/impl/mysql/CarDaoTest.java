@@ -4,6 +4,8 @@ import dao.interfaces.DaoFactory;
 import dao.interfaces.CarDao;
 import dao.interfaces.UserDao;
 import entity.car.Car;
+import entity.car.CarModel;
+import entity.car.Color;
 import entity.user.User;
 import entity.user.UserStatus;
 import entity.user.UserStatusType;
@@ -22,11 +24,6 @@ public class CarDaoTest {
     private static User driver;
     private static AtomicInteger i = new AtomicInteger(1);
 
-    private static String color = "someColor";
-    private static String model = "someModel";
-    private static boolean statusDefault = false;
-    private static boolean statusUpdate = true;
-
     private Car car;
     private Car dbCar;
     private long idCar;
@@ -37,7 +34,7 @@ public class CarDaoTest {
         carDao = daoFactory.getCarDao();
         userDao = daoFactory.getUserDao();
 
-        driver = createTestDriver(123456789, "test", "test", "test", "driver");
+        driver = createTestDriver(123456789, "test", "test", "test");
     }
     @AfterClass()
     public static void tearDown() throws Exception {
@@ -45,26 +42,11 @@ public class CarDaoTest {
         daoFactory.closeDatasource();
     }
 
-    private static User createTestDriver(int phone, String name, String surname, String password, String status) throws SQLException {
-        User d = User.builder()
-                .phone(phone)
-                .name(name)
-                .surname(surname)
-                .password(password)
-                .status(UserStatus.getInstance(UserStatusType.valueOf(status.toUpperCase())))
-                .build();
-        long id = userDao.addUser(d).orElseThrow(NullPointerException::new);
-        d.setId(id);
-        return d;
-    }
-
     @Before
     public void setUpMethod() throws SQLException{
         car = produceCar();
         idCar = carDao.addCar(car).orElseThrow(NullPointerException::new);
         car.setId(idCar);
-        //If the car was created without "car.status", then the database set default "car.status = false"
-        car.setActive(statusDefault);
     }
     @After
     public void tearDownMethod() throws SQLException {
@@ -85,6 +67,8 @@ public class CarDaoTest {
     }
     @Test
     public void updateCar() throws SQLException {
+        boolean statusUpdate = true;
+
         car.setActive(statusUpdate);
         carDao.updateStatus(idCar, statusUpdate).orElseThrow(NullPointerException::new);
         dbCar = carDao.getCarById(idCar).orElseThrow(NullPointerException::new);
@@ -92,20 +76,34 @@ public class CarDaoTest {
     }
     @Test
     public void getListCar() throws SQLException {
-        car.setActive(statusUpdate);
-        carDao.updateStatus(idCar, statusUpdate).orElseThrow(NullPointerException::new);
+        boolean carStatus = true;
+
+        car.setActive(carStatus);
+        carDao.updateStatus(idCar, carStatus).orElseThrow(NullPointerException::new);
         Car car_2 = produceCar();
-        car_2.setActive(statusUpdate);
+        car_2.setActive(carStatus);
         long idCar_2 = carDao.addCar(car_2).orElseThrow(NullPointerException::new);
         car_2.setId(idCar_2);
 
-        List<Car> list = carDao.getListCarsByStatus(statusUpdate).orElseThrow(NullPointerException::new);
+        List<Car> list = carDao.getListCarsByStatus(carStatus).orElseThrow(NullPointerException::new);
         Assert.assertTrue(list.contains(car));
         Assert.assertTrue(list.contains(car_2));
 
         carDao.deleteCar(car_2.getId()).orElseThrow(NullPointerException::new);
     }
 
+    private static User createTestDriver(int phone, String name, String surname, String password) throws SQLException {
+        User d = User.builder()
+                .phone(phone)
+                .name(name)
+                .surname(surname)
+                .password(password)
+                .status(UserStatus.getInstance(UserStatusType.DRIVER))
+                .build();
+        long id = userDao.addUser(d).orElseThrow(NullPointerException::new);
+        d.setId(id);
+        return d;
+    }
     private Car produceCar(){
         Integer count = i.getAndIncrement();
         String number = count.toString();
@@ -127,6 +125,12 @@ public class CarDaoTest {
                 break;
             }
         }
-        return Car.builder().idDriver(driver.getId()).number(number).model(model).color(color).build();
+        return Car.builder()
+                .driver(driver)
+                .number(number)
+                .model(new CarModel("testModel"))
+                .color(new Color("testColor"))
+                .active(false)
+                .build();
     }
 }

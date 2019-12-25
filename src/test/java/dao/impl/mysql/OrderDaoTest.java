@@ -5,6 +5,8 @@ import dao.interfaces.CarDao;
 import dao.interfaces.OrderDao;
 import dao.interfaces.UserDao;
 import entity.car.Car;
+import entity.car.CarModel;
+import entity.car.Color;
 import entity.order.Order;
 import entity.user.User;
 import entity.user.UserStatus;
@@ -39,7 +41,7 @@ public class OrderDaoTest {
 
         passenger = createTestPassenger();
         driver = createTestDriver();
-        car = createTestCar(driver.getId());
+        car = createTestCar(driver);
     }
     @AfterClass
     public static void tearDown() throws Exception {
@@ -97,8 +99,14 @@ public class OrderDaoTest {
         p.setId(id);
         return p;
     }
-    private static Car createTestCar(long idDriver) throws SQLException {
-        Car c = Car.builder().number("1395КН5").idDriver(idDriver).color("testColor").model("testModel").active(true).build();
+    private static Car createTestCar(User driver) throws SQLException {
+        Car c = Car.builder()
+                .number("1395КН5")
+                .driver(driver)
+                .color(new Color("testColor"))
+                .model(new CarModel("testModel"))
+                .active(true)
+                .build();
         long id = carDao.addCar(c).orElseThrow(NullPointerException::new);
         c.setId(id);
         return c;

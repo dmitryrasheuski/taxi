@@ -2,6 +2,8 @@ package dao.impl.mysql;
 
 import dao.interfaces.CarDao;
 import entity.car.Car;
+import entity.car.CarModel;
+import entity.car.Color;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
@@ -108,12 +110,12 @@ class CarDaoImpl extends AbstractDao implements CarDao{
     @Override
     PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException {
         Car car = (Car)entity;
-        int color = getIdColorOrModel(getColorId, addColor, car.getColor(), con).orElseThrow(() -> new NullPointerException(car.getColor() + " color was didn't found "));
-        int model = getIdColorOrModel(getModelId, addModel, car.getModel(), con).orElseThrow(() -> new NullPointerException(car.getColor() + " model was didn't found "));
+        int color = getIdColorOrModel(getColorId, addColor, car.getColor().getTitle(), con).orElseThrow(() -> new NullPointerException(car.getColor() + " color was didn't found "));
+        int model = getIdColorOrModel(getModelId, addModel, car.getModel().getTitle(), con).orElseThrow(() -> new NullPointerException(car.getColor() + " model was didn't found "));
 
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
         ps.setString(1, car.getNumber());
-        ps.setLong(2, car.getIdDriver());
+        ps.setLong(2, car.getDriver().getId());
         ps.setInt(3, color);
         ps.setInt(4, model);
         ps.setBoolean(5, car.isActive());
@@ -140,7 +142,14 @@ class CarDaoImpl extends AbstractDao implements CarDao{
             color = rs.getString("color");
             model = rs.getString("model");
             status = rs.getBoolean("status");
-            car = Car.builder().id(id).idDriver(idDriver).number(number).color(color).model(model).active(status).build();
+            car = Car.builder()
+                    .id(id)
+                    .driver(daoFactory.getUserDao().getById(idDriver).orElseThrow(() -> new NullPointerException("Driver by id was not found")))
+                    .number(number)
+                    .color(new Color(color))
+                    .model(new CarModel(model))
+                    .active(status)
+                    .build();
             carList.add(car);
         } while (rs.next());
 
