@@ -30,7 +30,7 @@ public enum UserStatusType {
     public UserStatus getStatus() {
         return status;
     }
-    public Optional<UserStatus> getStatus(int id){
+    public static Optional<UserStatus> getStatus(int id){
         return Arrays.stream(values())
                 .filter((i) -> i.status.getId() == id)
                 .findFirst()
