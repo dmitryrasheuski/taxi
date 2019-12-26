@@ -2,9 +2,8 @@ package entity.user;
 
 import lombok.*;
 
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Setter
+@Setter(value = AccessLevel.PACKAGE)
 @Getter
 @EqualsAndHashCode
 @ToString
