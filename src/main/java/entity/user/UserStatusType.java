@@ -3,17 +3,26 @@ package entity.user;
 import dao.interfaces.DaoFactory;
 import dao.interfaces.UserStatusDao;
 
+import java.sql.SQLException;
+
 public enum UserStatusType {
-    ADMIN ("admin", DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL).getUserStatusDao()),
-    PASSENGER ("passenger", DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL).getUserStatusDao()),
-    DRIVER ("driver", DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL).getUserStatusDao());
+    ADMIN (DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL).getUserStatusDao()),
+    PASSENGER (DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL).getUserStatusDao()),
+    DRIVER (DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL).getUserStatusDao());
 
     private UserStatus status;
 
-    UserStatusType(String title, UserStatusDao userStatusDao){
-        int id = userStatusDao.getUserStatusId(title)
-                .orElseThrow(() -> new IllegalStateException("UserStatus with title " + "'" + title + "'" + " didn't found in DB"));
-        this.status = new UserStatus(id, title);
+    UserStatusType(UserStatusDao userStatusDao){
+        status = new UserStatus();
+        status.setTitle(name());
+        int id = 0;
+        try {
+            id = userStatusDao.mergeUserStatus(status)
+                    .orElseThrow(() -> new IllegalStateException("UserStatus with title " + "'" + status.getTitle() + "'" + " didn't found in DB"));
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+        status.setId(id);
     }
 
     public UserStatus getStatus() {
