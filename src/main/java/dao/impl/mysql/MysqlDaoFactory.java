@@ -41,6 +41,10 @@ public class MysqlDaoFactory implements DaoFactory {
         return new CarDaoImpl(this);
     }
     @Override
+    public AddressDao getAddressDao() {
+        return new AddressDaoImpl(this);
+    }
+    @Override
     public void closeDatasource(){
         connectionPool.closeDatasource();
     }
