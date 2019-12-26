@@ -13,15 +13,15 @@ import java.util.Optional;
 
 @Log4j
 class UserDaoImpl extends AbstractDao<User> implements UserDao {
-    private static final String saveUser = "INSERT INTO users (phone, name, surname, password, status) VALUES (?, ?, ?, ?, ?)";
+    private static final String saveUser = "INSERT INTO users (phone, name, surname, password, status_id) VALUES (?, ?, ?, ?, ?)";
     private static final String deleteUser = "DELETE FROM users WHERE id = ?";
     private static final String updatePhone = "UPDATE users SET phone = ? WHERE id = ?";
     private static final String updateName = "UPDATE users SET name = ? WHERE id = ?";
     private static final String updateSurname = "UPDATE users SET surname = ? WHERE id = ?";
     private static final String updatePassword = "UPDATE users SET password = ? WHERE id = ?";
-    private static final String updateStatus = "UPDATE users SET status = ? WHERE id = ?";
-    private static final String getUserById = "SELECT u.id, u.phone, u.name, u.surname, u.password, s.status FROM users AS u LEFT JOIN userStatus AS s ON u.status = s.id WHERE u.id = ?";
-    private static final String getUserByPhone = "SELECT u.id, u.phone, u.name, u.surname, u.password, s.status FROM users AS u LEFT JOIN userStatus AS s ON u.status = s.id WHERE u.phone = ?";
+    private static final String updateStatus = "UPDATE users SET status_id = ? WHERE id = ?";
+    private static final String getUserById = "SELECT id, phone, name, surname, password, status_id FROM users WHERE id = ?";
+    private static final String getUserByPhone = "SELECT id, phone, name, surname, password, status_id FROM users WHERE phone = ?";
 
     UserDaoImpl(MysqlDaoFactory daoFactory) {
         super(daoFactory);
@@ -53,8 +53,7 @@ class UserDaoImpl extends AbstractDao<User> implements UserDao {
     }
     @Override
     public Optional<Integer> updateStatus(long id, UserStatus status) throws SQLException {
-        int idStatus =  status.getId();
-        return updateOneColumnById(id, idStatus, updateStatus);
+        return updateOneColumnById(id, status.getId(), updateStatus);
     }
     @Override
     public Optional<User> getById(long id) throws SQLException {
@@ -91,21 +90,24 @@ class UserDaoImpl extends AbstractDao<User> implements UserDao {
         String name;
         String surname;
         String password;
-        String status;
+        int statusId;
+        UserStatus status;
         do{
             id = rs.getLong("id");
             phone = rs.getInt("phone");
             name = rs.getString("name");
             surname = rs.getString("surname");
             password = rs.getString("password");
-            status = rs.getString("status");
+            statusId = rs.getInt("status_id");
+            status = UserStatusType.getStatus(statusId)
+                    .orElseThrow(() -> new IllegalStateException("The value from column 'status_id' in table 'users' doesn't equals the value from 'status.getId()' in 'UserStatusType' class'"));
             user = User.builder()
                     .id(id)
                     .phone(phone)
                     .name(name)
                     .surname(surname)
                     .password(password)
-                    .status(UserStatus.getInstance(UserStatusType.valueOf(status.toUpperCase())))
+                    .status(status)
                     .build();
             list.add(user);
         } while (rs.next());

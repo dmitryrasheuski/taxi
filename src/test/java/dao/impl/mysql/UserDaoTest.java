@@ -17,13 +17,6 @@ public class UserDaoTest {
     private static UserDao userDao;
     private static AtomicInteger i = new AtomicInteger(1);
 
-    private static String name = "name";
-    private static String surname = "surname";
-    private static String password = "password";
-    private static UserStatus statusDefault = UserStatus.getInstance(UserStatusType.PASSENGER);
-    private static String passwordUpdate = "passUpdate";
-    private static UserStatus statusUpdate = UserStatus.getInstance(UserStatusType.DRIVER);
-
     private User user;
     private User dbUser;
 
@@ -43,10 +36,10 @@ public class UserDaoTest {
         int phone = getUniquePhone();
         user = User.builder()
                 .phone(phone)
-                .name(name)
-                .surname(surname)
-                .password(password)
-                .status(statusDefault)
+                .name("name")
+                .surname("surname")
+                .password("password")
+                .status(UserStatus.getInstance(UserStatusType.PASSENGER))
                 .build();
         long id = userDao.addUser(user).orElseThrow(NullPointerException::new);
         user.setId(id);
@@ -70,19 +63,23 @@ public class UserDaoTest {
     }
     @Test
     public void updateUser() throws SQLException {
-        int phoneUpdate = getUniquePhone();
+        String newPassword = "newPassword";
+        String newName = "newName";
+        String newSurname = "newSurname";
+        int newPhone = getUniquePhone();
+        UserStatus newStatus = UserStatus.getInstance(UserStatusType.DRIVER);
 
-        user.setPassword(passwordUpdate);
-        user.setName(surname);
-        user.setSurname(name);
-        user.setPhone(phoneUpdate);
-        user.setStatus(statusUpdate);
+        user.setPassword(newPassword);
+        user.setName(newName);
+        user.setSurname(newSurname);
+        user.setPhone(newPhone);
+        user.setStatus(newStatus);
 
-        userDao.updatePassword(user.getId(), passwordUpdate);
-        userDao.updateName(user.getId(), surname);
-        userDao.updateSurname(user.getId(), name);
-        userDao.updatePhone(user.getId(), phoneUpdate);
-        userDao.updateStatus(user.getId(), statusUpdate);
+        userDao.updatePassword(user.getId(), newPassword);
+        userDao.updateName(user.getId(), newName);
+        userDao.updateSurname(user.getId(), newSurname);
+        userDao.updatePhone(user.getId(), newPhone);
+        userDao.updateStatus(user.getId(), newStatus);
 
         dbUser = userDao.getById(user.getId()).orElseThrow(NullPointerException::new);
         Assert.assertEquals(user, dbUser);
