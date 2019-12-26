@@ -26,7 +26,7 @@ public class OrderDaoTest {
 
     private static Address from = new Address("from");
     private static Address where = new Address("where");
-    private static String comments = "comments";
+    private static String comment = "comment";
 
     private static User passenger;
     private static User driver;
@@ -59,7 +59,7 @@ public class OrderDaoTest {
                 .car(car)
                 .from(from)
                 .where(where)
-                .comments(comments)
+                .comment(comment)
                 .build();
         long id = orderDao.addOrder(order).orElseThrow(NullPointerException::new);
         order.setId(id);
@@ -76,7 +76,7 @@ public class OrderDaoTest {
                 .car(car)
                 .from(from)
                 .where(where)
-                .comments(comments)
+                .comment(comment)
                 .build();
         long id2 = orderDao.addOrder(order_2).orElseThrow(NullPointerException::new);
         order_2.setId(id2);

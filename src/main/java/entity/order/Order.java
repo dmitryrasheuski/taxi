@@ -13,5 +13,5 @@ public class Order {
     private Car car;
     private Address from;
     private Address where;
-    private String comments;
+    private String comment;
 }

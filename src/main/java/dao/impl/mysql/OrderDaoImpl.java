@@ -45,7 +45,7 @@ class OrderDaoImpl extends AbstractDao implements OrderDao {
         ps.setLong(2, order.getCar().getId());
         ps.setString(3, from.getTitle());
         ps.setString(4, where.getTitle());
-        ps.setString(5, order.getComments());
+        ps.setString(5, order.getComment());
         return ps;
     }
     @Override
@@ -61,21 +61,21 @@ class OrderDaoImpl extends AbstractDao implements OrderDao {
         long idUser = 0;
         String from = null;
         String where = null;
-        String comments = null;
+        String comment = null;
         do{
             id = rs.getLong("id");
             idCar = rs.getLong("idCar");
             idUser = rs.getLong("idUser");
             from = rs.getString("from");
             where = rs.getString("where");
-            comments = rs.getString("comments");
+            comment = rs.getString("comments");
             order = Order.builder()
                     .id(id)
                     .passenger(daoFactory.getUserDao().getById(idUser).orElseThrow(() -> new NullPointerException("User was not found")))
                     .car(daoFactory.getCarDao().getCarById(idCar).orElseThrow(() -> new NullPointerException("Car was not found")))
                     .from(new Address(from))
                     .where(new Address(where))
-                    .comments(comments)
+                    .comment(comment)
                     .build();
             list.add(order);
         } while (rs.next());

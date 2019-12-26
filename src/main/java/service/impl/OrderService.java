@@ -23,13 +23,13 @@ public class OrderService implements IGetTripList, ICreateOrder {
     private OrderDao orderDao = daoFactory.getOrderDao();
 
     @Override
-    public Order createOrder(int phone, String fromStr, String whereStr, String comments) throws AppServiceException {
+    public Order createOrder(int phone, String fromStr, String whereStr, String comment) throws AppServiceException {
         logger.debug("start createOrder(int, Str, Str, Str)");
 
         Order order = null;
         try {
             User passenger = authenticationUser(phone);
-            Car car = searchCarForOrder(fromStr, whereStr, comments);
+            Car car = searchCarForOrder(fromStr, whereStr, comment);
             Address from = new Address(fromStr);
             Address where = new Address(whereStr);
             order = Order.builder()
@@ -37,7 +37,7 @@ public class OrderService implements IGetTripList, ICreateOrder {
                     .car(car)
                     .from(from)
                     .where(where)
-                    .comments(comments)
+                    .comment(comment)
                     .build();
             long idOrder = orderDao.addOrder(order).orElseThrow(NullPointerException::new);
             order.setId(idOrder);
