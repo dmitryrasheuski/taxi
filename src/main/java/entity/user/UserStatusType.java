@@ -4,6 +4,8 @@ import dao.interfaces.DaoFactory;
 import dao.interfaces.UserStatusDao;
 
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Optional;
 
 public enum UserStatusType {
     ADMIN (DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL).getUserStatusDao()),
@@ -27,5 +29,11 @@ public enum UserStatusType {
 
     public UserStatus getStatus() {
         return status;
+    }
+    public Optional<UserStatus> getStatus(int id){
+        return Arrays.stream(values())
+                .filter((i) -> i.status.getId() == id)
+                .findFirst()
+                .map(i -> i.status);
     }
 }
