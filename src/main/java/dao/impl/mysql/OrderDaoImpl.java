@@ -3,15 +3,15 @@ package dao.impl.mysql;
 import dao.interfaces.OrderDao;
 import entity.order.Address;
 import entity.order.Order;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-class OrderDaoImpl extends AbstractDao implements OrderDao {
-    private static final Logger logger = Logger.getLogger(OrderDaoImpl.class);
+@Log4j
+class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
     private static final String addOrder = "INSERT INTO orders(idUser, idCar, `from`, `where`, comments) VALUES (?, ?, ?, ?, ?)";
     private static final String deleteOrder = "DELETE FROM orders WHERE id = ?";
     private static final String getListById = "SELECT  id, idCar, idUser, `from`, `where`, comments FROM orders WHERE idUser = ?";
@@ -33,19 +33,14 @@ class OrderDaoImpl extends AbstractDao implements OrderDao {
         return getEntityByOneValue(idUser, getListById);
     }
 
-
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException {
-        Order order = (Order)entity;
-        Address from = order.getFrom();
-        Address where = order.getWhere();
-
+    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Order entity) throws SQLException {
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-        ps.setLong(1, order.getPassenger().getId());
-        ps.setLong(2, order.getCar().getId());
-        ps.setString(3, from.getTitle());
-        ps.setString(4, where.getTitle());
-        ps.setString(5, order.getComment());
+        ps.setLong(1, entity.getPassenger().getId());
+        ps.setLong(2, entity.getCar().getId());
+        ps.setString(3, entity.getFrom().getTitle());
+        ps.setString(4, entity.getWhere().getTitle());
+        ps.setString(5, entity.getComment());
         return ps;
     }
     @Override
@@ -55,13 +50,13 @@ class OrderDaoImpl extends AbstractDao implements OrderDao {
         }
 
         List<Order> list = new ArrayList<>();
-        Order order = null;
-        long id = 0;
-        long idCar = 0;
-        long idUser = 0;
-        String from = null;
-        String where = null;
-        String comment = null;
+        Order order;
+        long id;
+        long idCar;
+        long idUser;
+        String from;
+        String where;
+        String comment;
         do{
             id = rs.getLong("id");
             idCar = rs.getLong("idCar");

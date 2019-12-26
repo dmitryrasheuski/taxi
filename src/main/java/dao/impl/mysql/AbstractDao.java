@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.List;
 import java.util.Optional;
 
-abstract class AbstractDao {
+abstract class AbstractDao<T> {
     private static final Logger logger = Logger.getLogger(AbstractDao.class);
     protected MysqlDaoFactory daoFactory;
 
@@ -54,7 +54,7 @@ abstract class AbstractDao {
         }
     }
 
-    Optional<Long> addEntity(Object entity, String sqlInsert) throws SQLException {
+    Optional<Long> addEntity(T entity, String sqlInsert) throws SQLException {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -86,7 +86,7 @@ abstract class AbstractDao {
             close(con, exception);
         }
     }
-    <T> Optional<List<T>> getEntityByOneValue(Object value, String sqlSelect) throws SQLException {
+    Optional<List<T>> getEntityByOneValue(Object value, String sqlSelect) throws SQLException {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -169,6 +169,6 @@ abstract class AbstractDao {
         }
     }
 
-    abstract PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException;
-    abstract <T> Optional<List<T>> handleResultSet(ResultSet rs) throws SQLException;
+    abstract PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, T entity) throws SQLException;
+    abstract Optional<List<T>> handleResultSet(ResultSet rs) throws SQLException;
 }

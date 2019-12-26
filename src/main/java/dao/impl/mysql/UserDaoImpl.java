@@ -4,15 +4,15 @@ import dao.interfaces.UserDao;
 import entity.user.User;
 import entity.user.UserStatus;
 import entity.user.UserStatusType;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-class UserDaoImpl extends AbstractDao implements UserDao {
-    private static final Logger logger = Logger.getLogger(UserDaoImpl.class);
+@Log4j
+class UserDaoImpl extends AbstractDao<User> implements UserDao {
     private static final String saveUser = "INSERT INTO users (phone, name, surname, password, status) VALUES (?, ?, ?, ?, ?)";
     private static final String deleteUser = "DELETE FROM users WHERE id = ?";
     private static final String updatePhone = "UPDATE users SET phone = ? WHERE id = ?";
@@ -59,25 +59,23 @@ class UserDaoImpl extends AbstractDao implements UserDao {
     @Override
     public Optional<User> getById(long id) throws SQLException {
         return getEntityByOneValue(id, getUserById)
-                .flatMap((list) -> Optional.of((User)list.get(0)));
+                .map((list) -> list.get(0));
     }
     @Override
     public Optional<User> getByPhone(int phone) throws SQLException{
         return getEntityByOneValue(phone, getUserByPhone)
-                .flatMap((list) -> Optional.of((User)list.get(0)));
+                .map((list) -> list.get(0));
     }
 
 
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity)  throws SQLException{
-        User user = (User) entity;
-        int statusId = user.getStatus().getId();
+    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, User entity)  throws SQLException{
         ps = con.prepareStatement(saveUser, Statement.RETURN_GENERATED_KEYS);
-        ps.setInt(1, user.getPhone());
-        ps.setString(2, user.getName());
-        ps.setString(3, user.getSurname());
-        ps.setString(4, user.getPassword());
-        ps.setInt(5, statusId);
+        ps.setInt(1, entity.getPhone());
+        ps.setString(2, entity.getName());
+        ps.setString(3, entity.getSurname());
+        ps.setString(4, entity.getPassword());
+        ps.setInt(5, entity.getStatus().getId());
         return ps;
     }
     @Override
@@ -87,13 +85,13 @@ class UserDaoImpl extends AbstractDao implements UserDao {
         }
 
         List<User> list = new ArrayList<>();
-        User user = null;
-        long id = 0;
-        int phone = 0;
-        String name = null;
-        String surname = null;
-        String password = null;
-        String status = null;
+        User user;
+        long id;
+        int phone;
+        String name;
+        String surname;
+        String password;
+        String status;
         do{
             id = rs.getLong("id");
             phone = rs.getInt("phone");
@@ -101,7 +99,6 @@ class UserDaoImpl extends AbstractDao implements UserDao {
             surname = rs.getString("surname");
             password = rs.getString("password");
             status = rs.getString("status");
-
             user = User.builder()
                     .id(id)
                     .phone(phone)

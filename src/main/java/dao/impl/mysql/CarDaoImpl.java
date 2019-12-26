@@ -4,15 +4,15 @@ import dao.interfaces.CarDao;
 import entity.car.Car;
 import entity.car.CarModel;
 import entity.car.Color;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-class CarDaoImpl extends AbstractDao implements CarDao{
-    private static final Logger logger = Logger.getLogger(CarDaoImpl.class);
+@Log4j
+class CarDaoImpl extends AbstractDao<Car> implements CarDao{
     private static final String addCar = "INSERT INTO cars(number, idDriver, color, model, status) values(?, ?, ?, ?, ?)";
     private static final String deleteCar = "DELETE FROM cars WHERE id = ?";
     private static final String updateStatus = "UPDATE cars SET status = ? WHERE id = ?";
@@ -43,12 +43,12 @@ class CarDaoImpl extends AbstractDao implements CarDao{
     @Override
     public Optional<Car> getCarById(long idCar) throws SQLException {
         return getEntityByOneValue(idCar, getCarById)
-                .flatMap((list) -> Optional.of((Car) list.get(0)));
+                .map((list) -> list.get(0));
     }
     @Override
     public Optional<Car> getCarByDriver(long idDriver) throws SQLException {
         return getEntityByOneValue(idDriver, getCarByDriver)
-                .flatMap((list) -> Optional.of((Car) list.get(0)));
+                .map((list) -> list.get(0));
     }
     @Override
     public Optional<List<Car>> getListCarsByStatus(boolean status) throws SQLException {
@@ -106,19 +106,17 @@ class CarDaoImpl extends AbstractDao implements CarDao{
         }
     }
 
-
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException {
-        Car car = (Car)entity;
-        int color = getIdColorOrModel(getColorId, addColor, car.getColor().getTitle(), con).orElseThrow(() -> new NullPointerException(car.getColor() + " color was didn't found "));
-        int model = getIdColorOrModel(getModelId, addModel, car.getModel().getTitle(), con).orElseThrow(() -> new NullPointerException(car.getColor() + " model was didn't found "));
+    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Car entity) throws SQLException {
+        int color = getIdColorOrModel(getColorId, addColor, entity.getColor().getTitle(), con).orElseThrow(() -> new NullPointerException(entity.getColor() + " color was didn't found "));
+        int model = getIdColorOrModel(getModelId, addModel, entity.getModel().getTitle(), con).orElseThrow(() -> new NullPointerException(entity.getColor() + " model was didn't found "));
 
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-        ps.setString(1, car.getNumber());
-        ps.setLong(2, car.getDriver().getId());
+        ps.setString(1, entity.getNumber());
+        ps.setLong(2, entity.getDriver().getId());
         ps.setInt(3, color);
         ps.setInt(4, model);
-        ps.setBoolean(5, car.isActive());
+        ps.setBoolean(5, entity.isActive());
         return ps;
     }
     @Override
@@ -128,13 +126,13 @@ class CarDaoImpl extends AbstractDao implements CarDao{
         }
 
         List<Car> carList = new ArrayList<>();
-        Car car = null;
-        long id = 0;
-        long idDriver = 0;
-        String number = null;
-        String color = null;
-        String model = null;
-        boolean status = false;
+        Car car;
+        long id;
+        long idDriver;
+        String number;
+        String color;
+        String model;
+        boolean status;
         do{
             id = rs.getLong("id");
             idDriver = rs.getLong("idDriver");

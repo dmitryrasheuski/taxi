@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Log4j
-public class AddressDaoImpl extends AbstractDao implements AddressDao {
+public class AddressDaoImpl extends AbstractDao<Address> implements AddressDao {
     private static final String getById = "SELECT title FROM address where id = ?";
     private static final String getByTitle = "SELECT id FROM address where title = ?";
     private static final String addAddress = "INSERT INTO address(title) VALUE (?)";
@@ -25,18 +25,17 @@ public class AddressDaoImpl extends AbstractDao implements AddressDao {
     @Override
     public Optional<Address> getAddress(long id) throws SQLException {
         return getEntityByOneValue(id, getById)
-                .map((list) -> (Address)list.get(0));
+                .map((list) -> list.get(0));
     }
     @Override
     public Optional<Address> getAddress(String title) throws SQLException {
         return getEntityByOneValue(title, getByTitle)
-                .map((list) -> (Address)list.get(0));
+                .map((list) -> list.get(0));
     }
 
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException {
-        Address address = (Address) entity;
-        String title = address.getTitle().toUpperCase();
+    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Address entity) throws SQLException {
+        String title = entity.getTitle().toUpperCase();
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
         ps.setString(1, title);
         return ps;
@@ -48,9 +47,9 @@ public class AddressDaoImpl extends AbstractDao implements AddressDao {
         }
 
         List<Address> list = new ArrayList<>();
-        Address address = null;
-        long id = 0;
-        String title = null;
+        Address address;
+        long id;
+        String title;
         do{
             id = rs.getLong("id");
             title = rs.getString("title");
