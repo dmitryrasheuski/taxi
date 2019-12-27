@@ -45,6 +45,10 @@ public class MysqlDaoFactory implements DaoFactory {
         return new AddressDaoImpl(this);
     }
     @Override
+    public ColorDao getColorDao() {
+        return new ColorDaoImpl(this);
+    }
+    @Override
     public void closeDatasource(){
         connectionPool.closeDatasource();
     }
