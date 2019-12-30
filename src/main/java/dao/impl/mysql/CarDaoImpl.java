@@ -13,16 +13,12 @@ import java.util.Optional;
 
 @Log4j
 class CarDaoImpl extends AbstractDao<Car> implements CarDao{
-    private static final String addCar = "INSERT INTO cars(number, idDriver, color, model, status) values(?, ?, ?, ?, ?)";
+    private static final String addCar = "INSERT INTO cars(number, driver_id, color_id, model_id, active) values(?, ?, ?, ?, ?)";
     private static final String deleteCar = "DELETE FROM cars WHERE id = ?";
     private static final String updateStatus = "UPDATE cars SET status = ? WHERE id = ?";
     private static final String getCarById = "SELECT c.id, c.number, c.idDriver, cc.color, mc.model, c.status FROM cars AS c LEFT JOIN colorCar cc on c.color = cc.id LEFT JOIN modelCar mc ON c.model = mc.id WHERE c.id = ?";
     private static final String getCarByDriver = "SELECT c.id, c.number, c.idDriver, cc.color, mc.model, c.status FROM cars AS c LEFT JOIN colorCar cc on c.color = cc.id LEFT JOIN modelCar mc ON c.model = mc.id WHERE c.idDriver = ?";
     private static final String  getListCarByStatus= "SELECT c.id, c.number, c.idDriver, cc.color, mc.model, c.status FROM cars AS c LEFT JOIN colorCar cc on c.color = cc.id LEFT JOIN modelCar mc ON c.model = mc.id WHERE c.status = ?";
-    private static final String getColorId = "SELECT id FROM colorCar WHERE color = ?";
-    private static final String addColor = "INSERT INTO colorCar(color) VALUE (?)";
-    private static final String getModelId = "SELECT id FROM modelCar WHERE model = ?";
-    private static final String addModel = "INSERT INTO modelCar(model) VALUE (?)";
 
     CarDaoImpl(MysqlDaoFactory daoFactory){
         super(daoFactory);
@@ -30,6 +26,16 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
 
     @Override
     public Optional<Long> addCar(Car car) throws SQLException {
+        int colorId = daoFactory.getColorDao()
+                .getIdOrElseAddAndGet(car.getColor().getTitle())
+                .orElseThrow(() -> new IllegalStateException("The value 'color.title'  wasn't found and wasn't added in the database"));
+        car.getColor().setId(colorId);
+        int modelId = daoFactory.getCarModelDao()
+                .getOrElseAddAndGetId(car.getModel().getTitle())
+                .map(CarModel::getId)
+                .orElseThrow(() -> new IllegalStateException("The value 'carModel.title'  wasn't found and wasn't added in the database"));
+        car.getModel().setId(modelId);
+
         return addEntity(car, addCar);
     }
     @Override
@@ -108,14 +114,11 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
 
     @Override
     PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Car entity) throws SQLException {
-        int color = getIdColorOrModel(getColorId, addColor, entity.getColor().getTitle(), con).orElseThrow(() -> new NullPointerException(entity.getColor() + " color was didn't found "));
-        int model = getIdColorOrModel(getModelId, addModel, entity.getModel().getTitle(), con).orElseThrow(() -> new NullPointerException(entity.getColor() + " model was didn't found "));
-
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
         ps.setString(1, entity.getNumber());
         ps.setLong(2, entity.getDriver().getId());
-        ps.setInt(3, color);
-        ps.setInt(4, model);
+        ps.setInt(3, entity.getColor().getId());
+        ps.setInt(4, entity.getModel().getId());
         ps.setBoolean(5, entity.isActive());
         return ps;
     }
