@@ -29,8 +29,12 @@ public class AddressDaoImpl extends AbstractDao<Address> implements AddressDao {
     }
     @Override
     public Optional<Address> getAddress(String title) throws SQLException {
-        return getEntityByOneValue(title, getByTitle)
+        Optional<Address> res = getEntityByOneValue(title, getByTitle)
                 .map((list) -> list.get(0));
+        if(!res.isPresent()){
+            res = addAddress(new Address(title)).map((id) -> new Address(id, title));
+        }
+        return res;
     }
 
     @Override
