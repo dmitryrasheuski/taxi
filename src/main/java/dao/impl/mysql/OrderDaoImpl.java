@@ -1,8 +1,10 @@
 package dao.impl.mysql;
 
 import dao.interfaces.OrderDao;
+import entity.car.Car;
 import entity.order.Address;
 import entity.order.Order;
+import entity.user.User;
 import lombok.extern.log4j.Log4j;
 
 import java.sql.*;
@@ -52,24 +54,40 @@ class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
         List<Order> list = new ArrayList<>();
         Order order;
         long id;
-        long idCar;
-        long idUser;
-        String from;
-        String where;
+        long carId;
+        Car car;
+        long passengerId;
+        User passenger;
+        long fromId;
+        Address from;
+        long whereId;
+        Address where;
         String comment;
         do{
             id = rs.getLong("id");
-            idCar = rs.getLong("idCar");
-            idUser = rs.getLong("idUser");
-            from = rs.getString("from");
-            where = rs.getString("where");
-            comment = rs.getString("comments");
+            carId = rs.getLong("car_id");
+            car = daoFactory.getCarDao()
+                    .getCarById(carId)
+                    .orElseThrow(() -> new IllegalStateException("Car wasn't found in database"));
+            passengerId = rs.getLong("passenger_id");
+            passenger = daoFactory.getUserDao()
+                    .getById(passengerId)
+                    .orElseThrow(() -> new IllegalStateException("User wasn't found in database"));
+            fromId = rs.getLong("from_id");
+            from = daoFactory.getAddressDao()
+                    .getAddress(fromId)
+                    .orElseThrow(() -> new IllegalStateException("Address wasn't found in database"));
+            whereId = rs.getLong("where_id");
+            where = daoFactory.getAddressDao()
+                    .getAddress(whereId)
+                    .orElseThrow(() -> new IllegalStateException("Address wasn't found in database"));
+            comment = rs.getString("comment");
             order = Order.builder()
                     .id(id)
-                    .passenger(daoFactory.getUserDao().getById(idUser).orElseThrow(() -> new NullPointerException("User was not found")))
-                    .car(daoFactory.getCarDao().getCarById(idCar).orElseThrow(() -> new NullPointerException("Car was not found")))
-                    .from(new Address(from))
-                    .where(new Address(where))
+                    .passenger(passenger)
+                    .car(car)
+                    .from(from)
+                    .where(where)
                     .comment(comment)
                     .build();
             list.add(order);
