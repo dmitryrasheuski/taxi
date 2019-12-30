@@ -55,9 +55,9 @@ public class OrderService implements IGetTripList, ICreateOrder {
 
         List<Order> orderList = null;
         try {
-            orderList = orderDao.getListByIdUser(idUser).orElseThrow(NullPointerException::new);
+            orderList = orderDao.getListByPassengerId(idUser).orElseThrow(NullPointerException::new);
         } catch (SQLException | NullPointerException ex) {
-            logger.info("getTripList(long) catch (SQLException | NullPointerException ex) : orderDao.getListByIdUser(long) throw exception");
+            logger.info("getTripList(long) catch (SQLException | NullPointerException ex) : orderDao.getListByPassengerId(long) throw exception");
             throw new AppServiceException(ex);
         }
 

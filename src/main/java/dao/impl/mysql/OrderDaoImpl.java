@@ -31,8 +31,8 @@ class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
         return deleteById(id, deleteOrder);
     }
     @Override
-    public Optional<List<Order>> getListByIdUser(long idUser) throws SQLException {
-        return getEntityByOneValue(idUser, getListByPassengerId);
+    public Optional<List<Order>> getListByPassengerId(long passengerId) throws SQLException {
+        return getEntityByOneValue(passengerId, getListByPassengerId);
     }
 
     @Override

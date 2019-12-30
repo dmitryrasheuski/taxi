@@ -10,5 +10,5 @@ public interface OrderDao {
 
     Optional<Long> addOrder(Order order) throws SQLException;
     Optional<Integer> deleteOrder(long id) throws SQLException;
-    Optional<List<Order>> getListByIdUser(long idUser) throws SQLException;
+    Optional<List<Order>> getListByPassengerId(long idUser) throws SQLException;
 }

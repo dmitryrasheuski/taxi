@@ -81,7 +81,7 @@ public class OrderDaoTest {
         long id2 = orderDao.addOrder(order_2).orElseThrow(NullPointerException::new);
         order_2.setId(id2);
 
-        List<Order> list = orderDao.getListByIdUser(passenger.getId()).orElseThrow(NullPointerException::new);
+        List<Order> list = orderDao.getListByPassengerId(passenger.getId()).orElseThrow(NullPointerException::new);
         Assert.assertTrue(list.contains(order));
         Assert.assertTrue(list.contains(order_2));
 
