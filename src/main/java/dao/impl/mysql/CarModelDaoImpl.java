@@ -36,6 +36,10 @@ public class CarModelDaoImpl extends AbstractDao<CarModel> implements CarModelDa
         }
         return model;
     }
+    @Override
+    public Optional<CarModel> getById(int id) throws SQLException {
+        return getEntityByOneValue(id, getCarModelById).map((list) -> list.get(0));
+    }
 
     @Override
     PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, CarModel entity) throws SQLException {
