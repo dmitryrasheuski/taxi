@@ -1,9 +1,6 @@
 package dao.impl.mysql;
 
-import dao.interfaces.DaoFactory;
-import dao.interfaces.CarDao;
-import dao.interfaces.OrderDao;
-import dao.interfaces.UserDao;
+import dao.interfaces.*;
 import entity.car.Car;
 import entity.car.CarModel;
 import entity.car.Color;
@@ -23,9 +20,10 @@ public class OrderDaoTest {
     private static OrderDao orderDao;
     private static UserDao userDao;
     private static CarDao carDao;
+    private static AddressDao addressDao;
 
-    private static Address from = new Address("from");
-    private static Address where = new Address("where");
+    private static Address from;
+    private static Address where;
     private static String comment = "comment";
 
     private static User passenger;
@@ -39,14 +37,17 @@ public class OrderDaoTest {
         orderDao = daoFactory.getOrderDao();
         userDao = daoFactory.getUserDao();
         carDao = daoFactory.getCarDao();
+        addressDao = daoFactory.getAddressDao();
 
         passenger = createTestPassenger();
         driver = createTestDriver();
         car = createTestCar(driver);
+        from = addressDao.getAddress("from").orElseThrow(NullPointerException::new);
+        where = addressDao.getAddress("where").orElseThrow(NullPointerException::new);
     }
     @AfterClass
     public static void tearDown() throws Exception {
-        //car deleted with driver because in cars table "on delete cascade"
+        carDao.deleteCar(car.getId());
         userDao.deleteUser(driver.getId());
         userDao.deleteUser(passenger.getId());
         daoFactory.closeDatasource();
@@ -90,7 +91,7 @@ public class OrderDaoTest {
 
     private static User createTestDriver() throws SQLException {
         User d = User.builder()
-                .phone(101)
+                .phone(101101)
                 .name("driver")
                 .surname("order")
                 .password("test")
@@ -102,7 +103,7 @@ public class OrderDaoTest {
     }
     private static User createTestPassenger() throws SQLException {
         User p = User.builder()
-                .phone(102)
+                .phone(102102)
                 .name("passenger")
                 .surname("order")
                 .password("test")
