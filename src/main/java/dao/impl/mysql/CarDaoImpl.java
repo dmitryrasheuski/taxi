@@ -15,7 +15,7 @@ import java.util.Optional;
 class CarDaoImpl extends AbstractDao<Car> implements CarDao{
     private static final String addCar = "INSERT INTO cars(number, driver_id, color_id, model_id, active) values(?, ?, ?, ?, ?)";
     private static final String deleteCar = "DELETE FROM cars WHERE id = ?";
-    private static final String updateStatus = "UPDATE cars SET status = ? WHERE id = ?";
+    private static final String updateActive = "UPDATE cars SET active = ? WHERE id = ?";
     private static final String getCarById = "SELECT c.id, c.number, c.idDriver, cc.color, mc.model, c.status FROM cars AS c LEFT JOIN colorCar cc on c.color = cc.id LEFT JOIN modelCar mc ON c.model = mc.id WHERE c.id = ?";
     private static final String getCarByDriver = "SELECT c.id, c.number, c.idDriver, cc.color, mc.model, c.status FROM cars AS c LEFT JOIN colorCar cc on c.color = cc.id LEFT JOIN modelCar mc ON c.model = mc.id WHERE c.idDriver = ?";
     private static final String  getListCarByStatus= "SELECT c.id, c.number, c.idDriver, cc.color, mc.model, c.status FROM cars AS c LEFT JOIN colorCar cc on c.color = cc.id LEFT JOIN modelCar mc ON c.model = mc.id WHERE c.status = ?";
@@ -43,8 +43,8 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
         return deleteById(idCar, deleteCar);
     }
     @Override
-    public Optional<Integer> updateStatus(long idCar, boolean status) throws SQLException {
-        return updateOneColumnById(idCar, status, updateStatus);
+    public Optional<Integer> updateActive(long idCar, boolean active) throws SQLException {
+        return updateOneColumnById(idCar, active, updateActive);
     }
     @Override
     public Optional<Car> getCarById(long idCar) throws SQLException {

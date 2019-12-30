@@ -70,7 +70,7 @@ public class CarDaoTest {
         boolean statusUpdate = true;
 
         car.setActive(statusUpdate);
-        carDao.updateStatus(idCar, statusUpdate).orElseThrow(NullPointerException::new);
+        carDao.updateActive(idCar, statusUpdate).orElseThrow(NullPointerException::new);
         dbCar = carDao.getCarById(idCar).orElseThrow(NullPointerException::new);
         Assert.assertEquals(dbCar, car);
     }
@@ -79,7 +79,7 @@ public class CarDaoTest {
         boolean carStatus = true;
 
         car.setActive(carStatus);
-        carDao.updateStatus(idCar, carStatus).orElseThrow(NullPointerException::new);
+        carDao.updateActive(idCar, carStatus).orElseThrow(NullPointerException::new);
         Car car_2 = produceCar();
         car_2.setActive(carStatus);
         long idCar_2 = carDao.addCar(car_2).orElseThrow(NullPointerException::new);
