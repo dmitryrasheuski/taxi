@@ -19,7 +19,7 @@ public class AddressDaoImpl extends AbstractDao<Address> implements AddressDao {
         super(factory);
     }
 
-    public Optional<Long> addAddress(Address address) throws SQLException {
+    private Optional<Long> addAddress(Address address) throws SQLException {
         return addEntity(address,addAddress);
     }
     @Override
