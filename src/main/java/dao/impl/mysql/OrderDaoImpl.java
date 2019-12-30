@@ -12,9 +12,9 @@ import java.util.Optional;
 
 @Log4j
 class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
-    private static final String addOrder = "INSERT INTO orders(idUser, idCar, `from`, `where`, comments) VALUES (?, ?, ?, ?, ?)";
+    private static final String addOrder = "INSERT INTO orders(passenger_id, car_id, from_id, where_id, comment) VALUES (?, ?, ?, ?, ?)";
     private static final String deleteOrder = "DELETE FROM orders WHERE id = ?";
-    private static final String getListById = "SELECT  id, idCar, idUser, `from`, `where`, comments FROM orders WHERE idUser = ?";
+    private static final String getListByPassengerId = "SELECT  id, passenger_id, car_id, from_id, where_id, comment FROM orders WHERE passenger_id = ?";
 
     OrderDaoImpl(MysqlDaoFactory daoFactory){
         super(daoFactory);
@@ -30,7 +30,7 @@ class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
     }
     @Override
     public Optional<List<Order>> getListByIdUser(long idUser) throws SQLException {
-        return getEntityByOneValue(idUser, getListById);
+        return getEntityByOneValue(idUser, getListByPassengerId);
     }
 
     @Override
