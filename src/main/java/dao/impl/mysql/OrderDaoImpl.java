@@ -38,8 +38,8 @@ class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
         ps.setLong(1, entity.getPassenger().getId());
         ps.setLong(2, entity.getCar().getId());
-        ps.setString(3, entity.getFrom().getTitle());
-        ps.setString(4, entity.getWhere().getTitle());
+        ps.setLong(3, entity.getFrom().getId());
+        ps.setLong(4, entity.getWhere().getId());
         ps.setString(5, entity.getComment());
         return ps;
     }
