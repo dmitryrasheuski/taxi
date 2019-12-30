@@ -19,18 +19,25 @@ public class ColorDaoImpl extends AbstractDao<Color> implements ColorDao {
         super(factory);
     }
 
+    @Override
     public Optional<Integer> addColor(String title) throws SQLException {
         return addEntity(new Color(title), addColor).map(Long::intValue);
     }
+    @Override
     public Optional<Color> getColorByTitle(String title) throws SQLException {
         return getEntityByOneValue(title, getColorByTitle).map((list) -> list.get(0));
     }
+    @Override
     public Optional<Integer> getIdOrElseAddAndGet(String title) throws  SQLException {
         Optional<Integer> id = getColorByTitle(title).map(Color::getId);
         if(!id.isPresent()) {
             id = addColor(title);
         }
         return id;
+    }
+    @Override
+    public Optional<Color> getById(int id) throws SQLException {
+        return getEntityByOneValue(id, getColorById).map((list -> list.get(0)));
     }
 
     @Override
