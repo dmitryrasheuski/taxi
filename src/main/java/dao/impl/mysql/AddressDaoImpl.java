@@ -11,8 +11,8 @@ import java.util.Optional;
 
 @Log4j
 public class AddressDaoImpl extends AbstractDao<Address> implements AddressDao {
-    private static final String getById = "SELECT title FROM address where id = ?";
-    private static final String getByTitle = "SELECT id FROM address where title = ?";
+    private static final String getById = "SELECT id, title FROM address where id = ?";
+    private static final String getByTitle = "SELECT id, title FROM address where title = ?";
     private static final String addAddress = "INSERT INTO address(title) VALUE (?)";
 
     AddressDaoImpl (MysqlDaoFactory factory){
