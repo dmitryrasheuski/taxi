@@ -4,6 +4,7 @@ import dao.interfaces.CarDao;
 import entity.car.Car;
 import entity.car.CarModel;
 import entity.car.Color;
+import entity.user.User;
 import lombok.extern.log4j.Log4j;
 
 import java.sql.*;
@@ -16,9 +17,9 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
     private static final String addCar = "INSERT INTO cars(number, driver_id, color_id, model_id, active) values(?, ?, ?, ?, ?)";
     private static final String deleteCar = "DELETE FROM cars WHERE id = ?";
     private static final String updateActive = "UPDATE cars SET active = ? WHERE id = ?";
-    private static final String getCarById = "SELECT c.id, c.number, c.idDriver, cc.color, mc.model, c.status FROM cars AS c LEFT JOIN colorCar cc on c.color = cc.id LEFT JOIN modelCar mc ON c.model = mc.id WHERE c.id = ?";
-    private static final String getCarByDriver = "SELECT c.id, c.number, c.idDriver, cc.color, mc.model, c.status FROM cars AS c LEFT JOIN colorCar cc on c.color = cc.id LEFT JOIN modelCar mc ON c.model = mc.id WHERE c.idDriver = ?";
-    private static final String  getListCarByStatus= "SELECT c.id, c.number, c.idDriver, cc.color, mc.model, c.status FROM cars AS c LEFT JOIN colorCar cc on c.color = cc.id LEFT JOIN modelCar mc ON c.model = mc.id WHERE c.status = ?";
+    private static final String getCarById = "SELECT id, number, driver_id, color_id, model_id, active FROM cars WHERE id = ?";
+    private static final String getCarByDriver = "SELECT id, number, driver_id, color_id, model_id, active FROM cars WHERE driver_id = ?";
+    private static final String getListCarByActive = "SELECT id, number, driver_id, color_id, model_id, active FROM cars WHERE active = ?";
 
     CarDaoImpl(MysqlDaoFactory daoFactory){
         super(daoFactory);
@@ -58,58 +59,7 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
     }
     @Override
     public Optional<List<Car>> getListCarsByStatus(boolean status) throws SQLException {
-       return getEntityByOneValue(status, getListCarByStatus);
-    }
-
-    private Optional<Integer> getIdColorOrModel(String sqlSelect, String sqlInsert, String value, Connection con) throws SQLException {
-        int id = 0;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        Exception exception = null;
-        try {
-            ps = con.prepareStatement(sqlSelect);
-            ps.setString(1, value);
-            rs = ps.executeQuery();
-
-            if (rs.next()){
-                return Optional.of(rs.getInt(1));
-            } else {
-                return addColorOrModel(sqlInsert, value, con);
-            }
-
-        } catch (Exception ex) {
-            exception = ex;
-            throw ex;
-
-        } finally {
-            close(rs, exception);
-            close(ps, exception);
-        }
-    }
-    private Optional<Integer> addColorOrModel(String sqlInsert, String value, Connection con) throws SQLException {
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        Exception exception = null;
-        try {
-            ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, value);
-            ps.executeUpdate();
-            rs = ps.getGeneratedKeys();
-
-            if (rs.next()) {
-                return Optional.of(rs.getInt(1));
-            } else {
-                return Optional.empty();
-            }
-
-        } catch (Exception ex) {
-            exception = ex;
-            throw ex;
-
-        } finally {
-            close(rs, exception);
-            close(ps, exception);
-        }
+       return getEntityByOneValue(status, getListCarByActive);
     }
 
     @Override
@@ -132,24 +82,36 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
         Car car;
         long id;
         long idDriver;
+        User driver;
         String number;
-        String color;
-        String model;
-        boolean status;
+        int colorId;
+        Color color;
+        int carModelId;
+        CarModel model;
+        boolean active;
         do{
             id = rs.getLong("id");
-            idDriver = rs.getLong("idDriver");
             number = rs.getString("number");
-            color = rs.getString("color");
-            model = rs.getString("model");
-            status = rs.getBoolean("status");
+            idDriver = rs.getLong("driver_id");
+            driver = daoFactory.getUserDao()
+                    .getById(idDriver)
+                    .orElseThrow(() -> new IllegalStateException("Driver wasn't fount in the database"));
+            colorId = rs.getInt("color_id");
+            color = daoFactory.getColorDao()
+                    .getById(colorId)
+                    .orElseThrow(() -> new IllegalStateException("Color wasn't fount in the database"));
+            carModelId = rs.getInt("model_id");
+            model = daoFactory.getCarModelDao()
+                    .getById(carModelId)
+                    .orElseThrow(() -> new IllegalStateException("CarModel wasn't fount in the database"));
+            active = rs.getBoolean("active");
             car = Car.builder()
                     .id(id)
-                    .driver(daoFactory.getUserDao().getById(idDriver).orElseThrow(() -> new NullPointerException("Driver by id was not found")))
+                    .driver(driver)
                     .number(number)
-                    .color(new Color(color))
-                    .model(new CarModel(model))
-                    .active(status)
+                    .color(color)
+                    .model(model)
+                    .active(active)
                     .build();
             carList.add(car);
         } while (rs.next());
