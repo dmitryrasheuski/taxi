@@ -39,14 +39,20 @@ create table users(
 create table cars(
   id bigint AUTO_INCREMENT,
   number varchar(7) NOT NULL UNIQUE ,
-  driver_id bigint NOT NULL,
   color_id int NOT NULL,
   model_id int NOT NULL,
-  active boolean NOT NULL ,
   CONSTRAINT PK_cars PRIMARY KEY (id),
-  CONSTRAINT FK_cars_to_drivers FOREIGN KEY (driver_id) REFERENCES users(id) ON DELETE CASCADE,
   CONSTRAINT FK_cars_to_color_cars FOREIGN KEY (color_id) REFERENCES colors(id) ON UPDATE CASCADE,
   CONSTRAINT FK_cars__to_model_car FOREIGN KEY (model_id) REFERENCES car_model(id) ON UPDATE CASCADE
+);
+
+create table car_driver(
+  id_car bigint NOT NULL ,
+  id_driver bigint NOT NULL,
+  CONSTRAINT FK_to_user FOREIGN KEY (id_driver) REFERENCES users(id),
+  CONSTRAINT FK_to_cars FOREIGN KEY (id_car) REFERENCES cars(id),
+  CONSTRAINT car_unique UNIQUE (id_car),
+  CONSTRAINT driver_unique UNIQUE (id_driver)
 );
 
 create table orders(
@@ -62,19 +68,3 @@ create table orders(
   CONSTRAINT FK_orders_to_address_by_from FOREIGN KEY (`from_id`) REFERENCES address(id),
   CONSTRAINT FK_orders_to_address_by_where FOREIGN KEY (`where_id`) REFERENCES address(id)
 );
-
-INSERT INTO user_status (title)
-VALUES ('passenger'), ('driver'), ('admin');
-
-INSERT INTO colors (title)
-VALUE ('dbColor');
-
-INSERT INTO car_model (title)
-VALUE ('dbCarModel');
-
-INSERT INTO users(name, surname, password, status_id, phone)
-VALUES ('admin', 'admin', 'admin', 3, 102),
-       ('dbDriver', 'dbDriver', 'dbDriver', 2, 101);
-
-INSERT INTO cars (number, driver_id, color_id, model_id, active)
-VALUE ('0000db0', 2, 1, 1, true );
