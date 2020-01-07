@@ -65,32 +65,6 @@ public class CarDaoTest {
         dbCar = carDao.getCarByDriver(driver.getId()).orElseThrow(NullPointerException::new);
         Assert.assertEquals(dbCar, car);
     }
-    @Test
-    public void updateCar() throws SQLException {
-        boolean statusUpdate = true;
-
-        car.setActive(statusUpdate);
-        carDao.updateActive(idCar, statusUpdate).orElseThrow(NullPointerException::new);
-        dbCar = carDao.getCarById(idCar).orElseThrow(NullPointerException::new);
-        Assert.assertEquals(dbCar, car);
-    }
-    @Test
-    public void getListCar() throws SQLException {
-        boolean carStatus = true;
-
-        car.setActive(carStatus);
-        carDao.updateActive(idCar, carStatus).orElseThrow(NullPointerException::new);
-        Car car_2 = produceCar();
-        car_2.setActive(carStatus);
-        long idCar_2 = carDao.addCar(car_2).orElseThrow(NullPointerException::new);
-        car_2.setId(idCar_2);
-
-        List<Car> list = carDao.getListCarsByStatus(carStatus).orElseThrow(NullPointerException::new);
-        Assert.assertTrue(list.contains(car));
-        Assert.assertTrue(list.contains(car_2));
-
-        carDao.deleteCar(car_2.getId()).orElseThrow(NullPointerException::new);
-    }
 
     private static User createTestDriver(int phone, String name, String surname, String password) throws SQLException {
         User d = User.builder()
@@ -130,7 +104,6 @@ public class CarDaoTest {
                 .number(number)
                 .model(new CarModel("testModel"))
                 .color(new Color("testColor"))
-                .active(false)
                 .build();
     }
 }
