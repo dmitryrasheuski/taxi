@@ -47,12 +47,12 @@ create table cars(
 );
 
 create table car_driver(
-  id_car bigint NOT NULL ,
-  id_driver bigint NOT NULL,
-  CONSTRAINT FK_to_user FOREIGN KEY (id_driver) REFERENCES users(id),
-  CONSTRAINT FK_to_cars FOREIGN KEY (id_car) REFERENCES cars(id),
-  CONSTRAINT car_unique UNIQUE (id_car),
-  CONSTRAINT driver_unique UNIQUE (id_driver)
+  car_id bigint NOT NULL ,
+  driver_id bigint NOT NULL,
+  CONSTRAINT FK_to_user FOREIGN KEY (driver_id) REFERENCES users(id),
+  CONSTRAINT FK_to_cars FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE,
+  CONSTRAINT car_unique UNIQUE (car_id),
+  CONSTRAINT driver_unique UNIQUE (driver_id)
 );
 
 create table orders(

@@ -12,5 +12,4 @@ public class Car {
     private User driver;
     private Color color;
     private CarModel model;
-    private boolean active;
 }

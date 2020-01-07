@@ -91,21 +91,7 @@ public class OrderService implements IGetTripList, ICreateOrder {
         logger.debug("finish authentication(int)");
         return user;
     }
-    private Car searchCarForOrder(String from, String where, String comments) throws SQLException {
-        logger.debug("start searchCarForOrder(Str, Str, Str)");
-
-        CarDao carDao = daoFactory.getCarDao();
-        List<Car> carList = null;
-        try {
-            carList = carDao.getListCarsByStatus(true).orElseThrow(NullPointerException::new);
-        } catch (SQLException | NullPointerException ex){
-            logger.info("searchCarForOrder(Sts, Str, Str) catch (SQLException | NullPointerException ex) {} : carDao.getListCarsByStatus(boolean) throw exception");
-            throw ex;
-        }
-        int listSize = carList.size();
-        int rand = new Random(System.nanoTime()).nextInt(listSize);
-
-        logger.debug("finish searchCarForOrder(Str, Str, Str)");
-        return carList.get(rand);
+    /**заглушка*/ private Car searchCarForOrder(String from, String where, String comments) throws SQLException {
+        return null;
     }
 }
