@@ -14,12 +14,11 @@ import java.util.Optional;
 
 @Log4j
 class CarDaoImpl extends AbstractDao<Car> implements CarDao{
-    private static final String addCar = "INSERT INTO cars(number, driver_id, color_id, model_id, active) values(?, ?, ?, ?, ?)";
+    private static final String addCar = "INSERT INTO cars(number, color_id, model_id) values(?, ?, ?)";
+    private static final String buildCarDriverRelationship = "INSERT INTO car_driver(driver_id, car_id) VALUE(?, ?)";
     private static final String deleteCar = "DELETE FROM cars WHERE id = ?";
-    private static final String updateActive = "UPDATE cars SET active = ? WHERE id = ?";
-    private static final String getCarById = "SELECT id, number, driver_id, color_id, model_id, active FROM cars WHERE id = ?";
-    private static final String getCarByDriver = "SELECT id, number, driver_id, color_id, model_id, active FROM cars WHERE driver_id = ?";
-    private static final String getListCarByActive = "SELECT id, number, driver_id, color_id, model_id, active FROM cars WHERE active = ?";
+    private static final String getCarById = "SELECT id, number, driver_id, color_id, model_id FROM cars c LEFT JOIN car_driver cd ON c.id = cd.car_id WHERE id = ?";
+    private static final String getCarByDriver = "SELECT id, number, driver_id, color_id, model_id FROM cars c LEFT JOIN car_driver cd ON c.id = cd.car_id  WHERE driver_id = ?";
 
     CarDaoImpl(MysqlDaoFactory daoFactory){
         super(daoFactory);
@@ -37,15 +36,14 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
                 .orElseThrow(() -> new IllegalStateException("The value 'carModel.title'  wasn't found and wasn't added in the database"));
         car.getModel().setId(modelId);
 
-        return addEntity(car, addCar);
+        long carId = addEntity(car, addCar).orElseThrow(() -> new IllegalStateException("The new car wasn't added to database"));
+        addCarDriverRelationship(carId, car.getDriver().getId());
+
+        return Optional.of(carId);
     }
     @Override
     public Optional<Integer> deleteCar(long idCar) throws SQLException {
         return deleteById(idCar, deleteCar);
-    }
-    @Override
-    public Optional<Integer> updateActive(long idCar, boolean active) throws SQLException {
-        return updateOneColumnById(idCar, active, updateActive);
     }
     @Override
     public Optional<Car> getCarById(long idCar) throws SQLException {
@@ -57,19 +55,13 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
         return getEntityByOneValue(idDriver, getCarByDriver)
                 .map((list) -> list.get(0));
     }
-    @Override
-    public Optional<List<Car>> getListCarsByStatus(boolean status) throws SQLException {
-       return getEntityByOneValue(status, getListCarByActive);
-    }
 
     @Override
     PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Car entity) throws SQLException {
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
         ps.setString(1, entity.getNumber());
-        ps.setLong(2, entity.getDriver().getId());
-        ps.setInt(3, entity.getColor().getId());
-        ps.setInt(4, entity.getModel().getId());
-        ps.setBoolean(5, entity.isActive());
+        ps.setInt(2, entity.getColor().getId());
+        ps.setInt(3, entity.getModel().getId());
         return ps;
     }
     @Override
@@ -81,20 +73,19 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
         List<Car> carList = new ArrayList<>();
         Car car;
         long id;
-        long idDriver;
+        long driverId;
         User driver;
         String number;
         int colorId;
         Color color;
         int carModelId;
         CarModel model;
-        boolean active;
         do{
             id = rs.getLong("id");
             number = rs.getString("number");
-            idDriver = rs.getLong("driver_id");
+            driverId = rs.getLong("driver_id");
             driver = daoFactory.getUserDao()
-                    .getById(idDriver)
+                    .getById(driverId)
                     .orElseThrow(() -> new IllegalStateException("Driver wasn't fount in the database"));
             colorId = rs.getInt("color_id");
             color = daoFactory.getColorDao()
@@ -104,18 +95,38 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
             model = daoFactory.getCarModelDao()
                     .getById(carModelId)
                     .orElseThrow(() -> new IllegalStateException("CarModel wasn't fount in the database"));
-            active = rs.getBoolean("active");
             car = Car.builder()
                     .id(id)
                     .driver(driver)
                     .number(number)
                     .color(color)
                     .model(model)
-                    .active(active)
                     .build();
             carList.add(car);
         } while (rs.next());
 
         return Optional.of(carList);
+    }
+
+    private void addCarDriverRelationship(long carId, long driverId) throws SQLException {
+        Connection con = null;
+        PreparedStatement ps = null;
+        Exception exception = null;
+        try {
+            con = getConnection();
+            ps = con.prepareStatement(buildCarDriverRelationship);
+            ps.setLong(1, driverId);
+            ps.setLong(2, carId);
+            ps.executeUpdate();
+
+        } catch (Exception ex){
+            rollback(con, ex);
+            exception = ex;
+            throw ex;
+
+        } finally {
+            close(ps, exception);
+            close(con, exception);
+        }
     }
 }
