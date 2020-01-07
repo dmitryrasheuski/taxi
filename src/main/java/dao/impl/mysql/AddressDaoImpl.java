@@ -29,19 +29,20 @@ public class AddressDaoImpl extends AbstractDao<Address> implements AddressDao {
     }
     @Override
     public Optional<Address> getAddress(String title) throws SQLException {
+
         Optional<Address> res = getEntityByOneValue(title, getByTitle)
                 .map((list) -> list.get(0));
         if(!res.isPresent()){
-            res = addAddress(new Address(title)).map((id) -> new Address(id, title));
+            res = addAddress(new Address(title))
+                    .map((id) -> new Address(id, title));
         }
         return res;
     }
 
     @Override
     PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Address entity) throws SQLException {
-        String title = entity.getTitle().toUpperCase();
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-        ps.setString(1, title);
+        ps.setString(1, entity.getTitle());
         return ps;
     }
     @Override
@@ -57,8 +58,7 @@ public class AddressDaoImpl extends AbstractDao<Address> implements AddressDao {
         do{
             id = rs.getLong("id");
             title = rs.getString("title");
-            address = new Address(title);
-            address.setId(id);
+            address = new Address(id, title);
             list.add(address);
         }while (rs.next());
 

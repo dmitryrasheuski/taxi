@@ -83,10 +83,9 @@ public class OrderDaoTest {
         order_2.setId(id2);
 
         List<Order> list = orderDao.getListByPassengerId(passenger.getId()).orElseThrow(NullPointerException::new);
+        orderDao.deleteOrder(id2);
         Assert.assertTrue(list.contains(order));
         Assert.assertTrue(list.contains(order_2));
-
-        orderDao.deleteOrder(id2);
     }
 
     private static User createTestDriver() throws SQLException {
@@ -119,7 +118,6 @@ public class OrderDaoTest {
                 .driver(driver)
                 .color(new Color("testColor"))
                 .model(new CarModel("testModel"))
-                .active(true)
                 .build();
         long id = carDao.addCar(c).orElseThrow(NullPointerException::new);
         c.setId(id);
