@@ -13,15 +13,11 @@ public class WorkingCars {
     }
 
     public boolean addCar(Car car) {
-        if (car == null) {
-            throw new IllegalArgumentException("Car is null");
-        }
+        if (car == null) throw new IllegalArgumentException("Car is null");
         return list.add(car);
     }
     public boolean removeCar(Car car) {
-        if (car == null) {
-            throw new IllegalArgumentException("Car is null");
-        }
+        if (car == null) throw new IllegalArgumentException("Car is null");
         return list.remove(car);
     }
 }
