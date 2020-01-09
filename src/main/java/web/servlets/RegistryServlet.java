@@ -23,9 +23,9 @@ public class RegistryServlet extends HttpServlet {
 
         User user = HttpRequestParser.getUser(req);
         user = service.register(user).orElseThrow(() -> new IllegalStateException("The user is not registered"));
-
         HttpSession session = req.getSession();
         session.setAttribute("user", user);
+
         session.setAttribute("prevPage", session.getAttribute("nextPage"));
         session.setAttribute("nextPage", nextPage);
 
