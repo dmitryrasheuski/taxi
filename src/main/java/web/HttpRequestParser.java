@@ -38,7 +38,7 @@ public class HttpRequestParser {
     }
     public static User getUserFromRequest(HttpServletRequest req) {
 
-        int phone = getPhoneFromRequest(req).orElseThrow(() -> new IllegalStateException("The user must have a phone"));
+        Integer phone = getPhoneFromRequest(req).orElse(null);
         String name = getParameterFromRequest("name", req).orElse(null);
         String surname = getParameterFromRequest("surname", req).orElse(null);
         String password = getParameterFromRequest("password", req).orElse(null);
@@ -51,7 +51,6 @@ public class HttpRequestParser {
                 .password(password)
                 .status(UserStatus.getInstance(UserStatusType.valueOf(status.toUpperCase())))
                 .build();
-
     }
 
 }
