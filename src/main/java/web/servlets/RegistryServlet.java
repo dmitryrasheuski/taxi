@@ -21,7 +21,7 @@ public class RegistryServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        User user = HttpRequestParser.getUser(req);
+        User user = HttpRequestParser.getUserFromRequest(req);
         user = service.register(user).orElseThrow(() -> new IllegalStateException("The user is not registered"));
         HttpSession session = req.getSession();
         session.setAttribute("user", user);

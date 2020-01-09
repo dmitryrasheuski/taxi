@@ -10,16 +10,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HttpRequestParser {
-    public static Optional<String> getParameter(String name, HttpServletRequest req){
-
-        if(name == null) return Optional.empty();
-        String param = req.getParameter(name);
-        return param != null ? Optional.of(param.trim()) : Optional.empty();
-
+    public static Optional<String> getParameterFromRequest (String name, HttpServletRequest req){
+        String value = req.getParameter(name);
+        return value != null ? Optional.of(value.trim()) : Optional.empty();
     }
-    public static Optional<Integer> getPhone(HttpServletRequest req) {
+    public static Optional<Integer> getPhoneFromRequest (HttpServletRequest req) {
 
-        Optional<String> phoneStr = getParameter("phone", req);
+        Optional<String> phoneStr = getParameterFromRequest("phone", req);
         if(!phoneStr.isPresent()) return Optional.empty();
 
 
@@ -39,13 +36,13 @@ public class HttpRequestParser {
         return Optional.ofNullable(phone);
 
     }
-    public static User getUser(HttpServletRequest req) {
+    public static User getUserFromRequest(HttpServletRequest req) {
 
-        int phone = getPhone(req).orElseThrow(() -> new IllegalStateException("The user must have a phone"));
-        String name = getParameter("name", req).orElse(null);
-        String surname = getParameter("surname", req).orElse(null);
-        String password = getParameter("password", req).orElse(null);
-        String status = getParameter("status", req).orElse(null);
+        int phone = getPhoneFromRequest(req).orElseThrow(() -> new IllegalStateException("The user must have a phone"));
+        String name = getParameterFromRequest("name", req).orElse(null);
+        String surname = getParameterFromRequest("surname", req).orElse(null);
+        String password = getParameterFromRequest("password", req).orElse(null);
+        String status = getParameterFromRequest("status", req).orElse(null);
 
         return User.builder()
                 .phone(phone)
