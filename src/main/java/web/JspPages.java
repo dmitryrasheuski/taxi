@@ -1,6 +1,7 @@
 package web;
 
 public enum JspPages {
+    PAGE_PATTERN,
     CREATE_ORDER,
     ORDER_RESPONSE,
     LOGIN,
@@ -11,5 +12,9 @@ public enum JspPages {
     TRIP_LIST,
     ACTIVATING_CAR,
     INFO;
+
+    public String getPath(){
+        return null;
+    }
 
 }
