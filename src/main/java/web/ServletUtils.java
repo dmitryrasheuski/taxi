@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class HttpRequestParser {
+public class ServletUtils {
     public static Optional<String> getParameterFromRequest (String name, HttpServletRequest req){
         String value = req.getParameter(name);
         return value != null ? Optional.of(value.trim()) : Optional.empty();

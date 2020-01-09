@@ -2,7 +2,7 @@ package web.servlets;
 
 import entity.user.User;
 import service.interfaces.user.IRegisterUser;
-import web.HttpRequestParser;
+import web.ServletUtils;
 import web.JspPages;
 
 import javax.servlet.ServletException;
@@ -21,7 +21,7 @@ public class RegistryServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        User user = HttpRequestParser.getUserFromRequest(req);
+        User user = ServletUtils.getUserFromRequest(req);
         user = service.register(user).orElseThrow(() -> new IllegalStateException("The user is not registered"));
         HttpSession session = req.getSession();
         session.setAttribute("user", user);
