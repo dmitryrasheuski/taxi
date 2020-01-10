@@ -2,7 +2,6 @@ package service.interfaces.order;
 
 import entity.order.Order;
 
-public interface IServeOrder {
+public interface IOrderServing {
     void serveOrder(Order order);
-    void closeOrder(Order order);
 }
