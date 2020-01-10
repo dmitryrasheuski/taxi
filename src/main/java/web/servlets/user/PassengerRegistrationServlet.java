@@ -1,4 +1,4 @@
-package web.servlets;
+package web.servlets.user;
 
 import entity.user.User;
 import service.interfaces.user.IRegisterUser;
@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebServlet(urlPatterns = "/registryPassenger")
+@WebServlet(urlPatterns = "/passengerRegistration")
 public class PassengerRegistrationServlet extends HttpServlet {
     private static final IRegisterUser service = null;
 
