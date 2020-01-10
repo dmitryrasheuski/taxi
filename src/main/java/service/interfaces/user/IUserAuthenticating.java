@@ -4,7 +4,7 @@ import entity.user.User;
 
 import java.util.Optional;
 
-public interface IAuthentication {
+public interface IUserAuthenticating {
     /**
      This method find the user in the database by phone.
      If user was found then the password is verified.

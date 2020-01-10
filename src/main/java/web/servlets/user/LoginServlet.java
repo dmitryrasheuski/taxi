@@ -1,7 +1,7 @@
 package web.servlets.user;
 
 import entity.user.User;
-import service.interfaces.user.IAuthentication;
+import service.interfaces.user.IUserAuthenticating;
 import web.ServletUtils;
 
 import javax.servlet.ServletException;
@@ -14,7 +14,7 @@ import java.io.IOException;
 
 @WebServlet(urlPatterns = "/login")
 public class LoginServlet extends HttpServlet {
-    IAuthentication service = null;
+    IUserAuthenticating service = null;
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
