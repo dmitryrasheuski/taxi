@@ -4,7 +4,7 @@ import entity.user.User;
 
 import java.util.Optional;
 
-public interface IRegisterUser {
+public interface IUserRegistering {
     /**
      * @throws IllegalArgumentException if the 'name', 'surname', 'password', 'phone', 'status' user's fields were not initialized
      * @return      If the registry successful completed, return the current user at which the 'id' field was installed, otherwise return empty Optional.

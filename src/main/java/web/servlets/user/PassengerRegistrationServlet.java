@@ -1,9 +1,8 @@
 package web.servlets.user;
 
 import entity.user.User;
-import service.interfaces.user.IRegisterUser;
+import service.interfaces.user.IUserRegistering;
 import web.ServletUtils;
-import web.JspPages;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,7 +14,7 @@ import java.io.IOException;
 
 @WebServlet(urlPatterns = "/passengerRegistration")
 public class PassengerRegistrationServlet extends HttpServlet {
-    private static final IRegisterUser service = null;
+    private static final IUserRegistering service = null;
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
