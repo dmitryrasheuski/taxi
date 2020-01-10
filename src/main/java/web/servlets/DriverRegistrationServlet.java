@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebServlet(urlPatterns = "/registryDriver")
-public class RegistryDriverServlet extends HttpServlet {
+public class DriverRegistrationServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        req.getRequestDispatcher(Servlets.REGISTER_PASSENGER.getUrlPattern())
+        req.getRequestDispatcher(Servlets.PASSENGER_REGISTRATION.getUrlPattern())
                 .include(req, resp);
 
     }
