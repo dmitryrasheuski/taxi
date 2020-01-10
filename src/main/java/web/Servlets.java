@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter(value = AccessLevel.PUBLIC)
 public enum Servlets {
 
-    LOGIN                       ("/login",                      JspPages.CREATE_ORDER),
+    LOGIN                       ("/login",                      null),
     LOGOUT                      ("/logout",                     JspPages.CREATE_ORDER),
     PASSENGER_REGISTRATION      ("/passengerRegistration",      JspPages.CREATE_ORDER),
     DRIVER_REGISTRATION         ("/driverRegistration",         JspPages.DRIVER_REGISTRATION),
