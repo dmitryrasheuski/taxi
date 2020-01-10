@@ -17,4 +17,11 @@ public enum Servlets {
     ACTIVATE_CAR,
     DEACTIVATE_CAR;
 
+    private String servletPath;
+    private JspPages nextPage;
+
+    public static JspPages getNextJspPage(String servletPath){
+        return null;
+    }
+
 }
