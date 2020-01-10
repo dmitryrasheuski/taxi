@@ -1,6 +1,6 @@
 package web;
 
-public enum ServletPaths {
+public enum Servlets {
     LOGIN,
     LOGOUT,
     REGISTER,
