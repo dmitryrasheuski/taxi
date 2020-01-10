@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class CarModel {
-    private int id;
+    private Integer id;
     @NonNull
     private String title;
 }
