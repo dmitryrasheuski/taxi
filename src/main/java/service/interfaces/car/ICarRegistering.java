@@ -8,5 +8,5 @@ public interface ICarRegistering {
     /**
      * @return If the operation successful complete then return current car as which the 'id' field was installed, otherwise return empty Optional
      */
-    Optional<Car> addCar(Car car);
+    Optional<Car> registerCar(Car car);
 }
