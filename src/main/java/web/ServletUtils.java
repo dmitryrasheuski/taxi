@@ -1,5 +1,8 @@
 package web;
 
+import entity.car.Car;
+import entity.car.CarModel;
+import entity.car.Color;
 import entity.user.User;
 import entity.user.UserStatus;
 import entity.user.UserStatusType;
@@ -36,6 +39,17 @@ public class ServletUtils {
         return Optional.ofNullable(phone);
 
     }
+    public static Optional<Long> getIdFromRequest(HttpServletRequest req) {
+        return getParameterFromRequest("id", req).map(Long::valueOf);
+    }
+    public static Color getColorFromRequest(HttpServletRequest req) {
+        String title = getParameterFromRequest("colorTitle", req).orElse(null);
+        return new Color(title);
+    }
+    public static CarModel getCarModelFromRequest(HttpServletRequest req) {
+        String title = getParameterFromRequest("carModelTitle", req).orElse(null);
+        return new CarModel(title);
+    }
     public static User getUserFromRequest(HttpServletRequest req) {
 
         Integer phone = getPhoneFromRequest(req).orElse(null);
@@ -51,6 +65,24 @@ public class ServletUtils {
                 .password(password)
                 .status(UserStatus.getInstance(UserStatusType.valueOf(status.toUpperCase())))
                 .build();
+
+    }
+    public static Car getCarFromRequest(HttpServletRequest req) {
+
+        Long id = getIdFromRequest(req).orElse(null);
+        String number = getParameterFromRequest("number", req).orElse(null);
+        User user = getUserFromRequest(req);
+        Color color = getColorFromRequest(req);
+        CarModel model = getCarModelFromRequest(req);
+
+        return Car.builder()
+                .id(id)
+                .number(number)
+                .driver(user)
+                .color(color)
+                .model(model)
+                .build();
+
     }
 
 }
