@@ -8,8 +8,8 @@ public enum Servlets {
 
     LOGIN                       ("/login",                      JspPages.CREATE_ORDER),
     LOGOUT                      ("/logout",                     JspPages.CREATE_ORDER),
-    REGISTER_PASSENGER          ("/registryPassenger",          JspPages.CREATE_ORDER),
-    REGISTRY_DRIVER             ("/registryDriver",             JspPages.REGISTRY_DRIVER),
+    PASSENGER_REGISTRATION      ("/passengerRegistration",      JspPages.CREATE_ORDER),
+    DRIVER_REGISTRATION         ("/driverRegistration",         JspPages.DRIVER_REGISTRATION),
 
     CREATE_ORDER                ("/createOrder",                JspPages.ORDER_RESPONSE),
     SERVE_ORDER                 ("/serveOrder",                 JspPages.CURRENT_ORDER),
@@ -17,9 +17,9 @@ public enum Servlets {
     GET_UNPROCESSED_ORDER_LIST  ("/getUnprocessedOrderList",    JspPages.UNPROCESSED_ORDER_LIST),
     GET_TRIP_LIST               ("/getTripList",                JspPages.TRIP_LIST),
 
-    REGISTRY_CAR                ("/registryCar",                JspPages.REGISTRY_CAR),
-    ACTIVATE_CAR                ("/activateCar",                JspPages.UNPROCESSED_ORDER_LIST),
-    DEACTIVATE_CAR              ("/deactivateCar",              JspPages.ACTIVATING_CAR);
+    CAR_REGISTRATION            ("/carRegistration",            JspPages.CAR_REGISTRATION),
+    CAR_ACTIVATION              ("/carActivation",              JspPages.UNPROCESSED_ORDER_LIST),
+    CAR_DEACTIVATION            ("/carDeactivation",            JspPages.CAR_ACTIVATION);
 
     private String urlPattern;
     private JspPages nextPage;
