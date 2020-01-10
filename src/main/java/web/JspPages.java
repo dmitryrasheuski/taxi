@@ -11,6 +11,7 @@ public enum JspPages {
 
     CREATE_ORDER,
     ORDER_RESPONSE,
+    CURRENT_ORDER,
     UNPROCESSED_ORDER_LIST,
     TRIP_LIST,
 
