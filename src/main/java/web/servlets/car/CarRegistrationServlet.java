@@ -13,7 +13,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @WebServlet(urlPatterns = "/carRegistration")
-public class CarRegistration extends HttpServlet {
+public class CarRegistrationServlet extends HttpServlet {
     private static ICarRegistering service = null;
 
     @Override
