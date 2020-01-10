@@ -1,16 +1,22 @@
 package web;
 
 public enum JspPages {
+
     PAGE_PATTERN,
+    INDEX,
+
+    LOGIN,
+    REGISTRY_PASSENGER,
+    REGISTRY_DRIVER,
+
     CREATE_ORDER,
     ORDER_RESPONSE,
-    LOGIN,
-    REGISTRY,
-    ADD_DRIVER,
-    ADD_CAR,
-    ORDER_LIST,
+    UNPROCESSED_ORDER_LIST,
     TRIP_LIST,
+
+    REGISTRY_CAR,
     ACTIVATING_CAR,
+
     INFO;
 
     public String getPath(){
