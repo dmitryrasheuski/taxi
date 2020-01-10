@@ -11,9 +11,9 @@ public enum Servlets {
     PASSENGER_REGISTRATION      ("/passengerRegistration",      JspPages.CREATE_ORDER),
     DRIVER_REGISTRATION         ("/driverRegistration",         JspPages.DRIVER_REGISTRATION),
 
-    CREATE_ORDER                ("/createOrder",                JspPages.ORDER_RESPONSE),
-    SERVE_ORDER                 ("/serveOrder",                 JspPages.CURRENT_ORDER),
-    CLOSE_ORDER                 ("/closeOrder",                 JspPages.UNPROCESSED_ORDER_LIST),
+    ORDER_CREATION              ("/orderCreation",              JspPages.ORDER_RESPONSE),
+    ORDER_SERVICE               ("/orderService",               JspPages.CURRENT_ORDER),
+    ORDER_CLOSING               ("/orderClosing",               JspPages.UNPROCESSED_ORDER_LIST),
     GET_UNPROCESSED_ORDER_LIST  ("/getUnprocessedOrderList",    JspPages.UNPROCESSED_ORDER_LIST),
     GET_TRIP_LIST               ("/getTripList",                JspPages.TRIP_LIST),
 
