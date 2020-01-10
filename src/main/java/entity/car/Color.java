@@ -5,7 +5,7 @@ import lombok.NonNull;
 
 @Data
 public class Color {
-    private int id;
+    private Integer id;
     @NonNull
     private String title;
 }
