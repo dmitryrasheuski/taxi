@@ -2,7 +2,7 @@ package service.interfaces.car;
 
 import entity.car.Car;
 
-public interface ICarActivity {
+public interface ICarActivating {
     /**
      * This method add car to WorkingCar. The car most have id.
      * @param car The car is instance of "Car" class in which the 'id' field must be set
