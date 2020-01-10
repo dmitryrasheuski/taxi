@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @WebServlet(urlPatterns = "/registryPassenger")
-public class RegistryPassengerServlet extends HttpServlet {
+public class PassengerRegistrationServlet extends HttpServlet {
     private static final IRegisterUser service = null;
 
     @Override
