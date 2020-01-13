@@ -11,5 +11,6 @@ public interface IPassengerInfoProviding {
      * @param passenger Type of 'User' class at which the 'status' field equals UserStatusType.PASSENGER
      * @return If the operation is successful completed then return the current user at which the 'id' field was installed, otherwise return empty Optional
      */
-    Optional<User> providePassengerInfo(User passenger);
+    Optional<User> findPassengerInfo(User passenger);
+    User addPassengerInfo(User passenger);
 }
