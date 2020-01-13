@@ -1,7 +1,9 @@
 package service.interfaces.order;
 
-import entity.order.OrderWaitingList;
+import entity.order.Order;
+
+import java.util.List;
 
 public interface IOrderWaitingListProviding {
-    OrderWaitingList getOrderWaitingList();
+    List<Order> getOrderWaitingList();
 }
