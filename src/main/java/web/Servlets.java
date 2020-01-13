@@ -13,12 +13,12 @@ public enum Servlets {
 
     ORDER_CREATION              ("/orderCreation",              JspPages.ORDER_RESPONSE),
     ORDER_SERVICE               ("/orderService",               JspPages.CURRENT_ORDER),
-    ORDER_CLOSING               ("/orderClosing",               JspPages.UNPROCESSED_ORDER_LIST),
-    GET_UNPROCESSED_ORDER_LIST  ("/getUnprocessedOrderList",    JspPages.UNPROCESSED_ORDER_LIST),
+    ORDER_CLOSING               ("/orderClosing",               JspPages.ORDER_WAITING_LIST),
+    GET_ORDER_WAITING_LIST      ("/getOrderWaitingList",        JspPages.ORDER_WAITING_LIST),
     GET_TRIP_LIST               ("/getTripList",                JspPages.TRIP_LIST),
 
     CAR_REGISTRATION            ("/carRegistration",            JspPages.CAR_REGISTRATION),
-    CAR_ACTIVATION              ("/carActivation",              JspPages.UNPROCESSED_ORDER_LIST),
+    CAR_ACTIVATION              ("/carActivation",              JspPages.ORDER_WAITING_LIST),
     CAR_DEACTIVATION            ("/carDeactivation",            JspPages.CAR_ACTIVATION);
 
     private String urlPattern;
