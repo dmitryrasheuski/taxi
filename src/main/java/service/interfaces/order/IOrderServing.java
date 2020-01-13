@@ -1,7 +1,9 @@
 package service.interfaces.order;
 
+import entity.car.Car;
 import entity.order.Order;
+import entity.user.User;
 
 public interface IOrderServing {
-    void serveOrder(Order order);
+    Order servePassenger(User passenger, Car car);
 }
