@@ -3,12 +3,12 @@ package entity.order;
 import java.util.LinkedList;
 import java.util.List;
 
-public class WaitingList {
+public class OrderWaitingList {
     private static final List<Order> list = new LinkedList<>();
-    private static final WaitingList INSTANCE = new WaitingList();
+    private static final OrderWaitingList INSTANCE = new OrderWaitingList();
 
-    private WaitingList(){}
-    public static WaitingList getInstance(){
+    private OrderWaitingList(){}
+    public static OrderWaitingList getInstance(){
         return INSTANCE;
     }
 
