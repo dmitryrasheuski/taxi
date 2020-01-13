@@ -5,6 +5,6 @@ import entity.user.User;
 
 import java.util.List;
 
-public interface IGetTripList {
-    List<Order> getTripList(User passenger);
+public interface ITripListProviding {
+    List<Order> getTripList(User user);
 }
