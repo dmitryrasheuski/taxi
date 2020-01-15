@@ -1,6 +1,7 @@
 package dao.impl.mysql;
 
 import dao.interfaces.CarDao;
+import dao.interfaces.ColorDao;
 import entity.car.Car;
 import entity.car.CarModel;
 import entity.car.Color;
@@ -26,15 +27,9 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
 
     @Override
     public Optional<Long> addCar(Car car) throws SQLException {
-        int colorId = daoFactory.getColorDao()
-                .getIdOrElseAddAndGet(car.getColor().getTitle())
-                .orElseThrow(() -> new IllegalStateException("The value 'color.title'  wasn't found and wasn't added into the database"));
-        car.getColor().setId(colorId);
-        int modelId = daoFactory.getCarModelDao()
-                .getOrElseAddAndGetId(car.getModel().getTitle())
-                .map(CarModel::getId)
-                .orElseThrow(() -> new IllegalStateException("The value 'carModel.title'  wasn't found and wasn't added in the database"));
-        car.getModel().setId(modelId);
+
+        setColorCar(car);
+        setModelCar(car);
 
         long carId = addEntity(car, addCar).orElseThrow(() -> new IllegalStateException("The new car wasn't added to database"));
         addCarDriverRelationship(carId, car.getDriver().getId());
@@ -136,6 +131,21 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
         } finally {
             close(ps, exception);
         }
+
+    }
+    private void setColorCar(Car car) throws SQLException {
+
+        Color color = daoFactory.getColorDao()
+                .getOrElseAddAndGet( car.getColor().getTitle() );
+
+        car.setColor(color);
+    }
+    private void setModelCar(Car car) throws SQLException {
+
+        CarModel model = daoFactory.getCarModelDao()
+                .getOrElseAddAndGet( car.getColor().getTitle() );
+
+        car.setModel(model);
 
     }
 

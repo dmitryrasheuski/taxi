@@ -8,6 +8,6 @@ import java.util.Optional;
 public interface CarModelDao {
     Optional<Integer> addCarModel(CarModel model) throws SQLException;
     Optional<CarModel> getCarModel(String title) throws SQLException;
-    Optional<CarModel> getOrElseAddAndGetId(String title) throws SQLException;
+    CarModel getOrElseAddAndGet(String title) throws SQLException;
     Optional<CarModel> getById(int id) throws SQLException;
 }

@@ -31,13 +31,15 @@ public class CarModelDaoImpl extends AbstractDao<CarModel> implements CarModelDa
 
     }
     @Override
-    public Optional<CarModel> getOrElseAddAndGetId(String title) throws SQLException {
+    public CarModel getOrElseAddAndGet(String title) throws SQLException {
         Optional<CarModel> model;
 
         model = getCarModel(title);
-        if( !model.isPresent() ) model = addCarModel(new CarModel(title)).map((id) -> new CarModel(id, title));
+        if( ! model.isPresent() ) {
+            model = addCarModel(new CarModel(title)).map((id) -> new CarModel(id, title));
+        }
 
-        return model;
+        return model.get();
 
     }
     @Override

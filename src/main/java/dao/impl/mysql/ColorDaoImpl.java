@@ -24,19 +24,21 @@ public class ColorDaoImpl extends AbstractDao<Color> implements ColorDao {
         return addEntity(new Color(title), addColor).map(Long::intValue);
     }
     @Override
-    public Optional<Color> getColorByTitle(String title) throws SQLException {
+    public Optional<Color> getByTitle(String title) throws SQLException {
         Object[] parameters = new Object[] {title};
 
         return getEntity(parameters, getColorByTitle).map((list) -> list.get(0));
     }
     @Override
-    public Optional<Integer> getIdOrElseAddAndGet(String title) throws  SQLException {
-        Optional<Integer> id;
+    public Color getOrElseAddAndGet(String title) throws  SQLException {
+        Optional<Color> color;
 
-        id  = getColorByTitle(title).map(Color::getId);
-        if( !id.isPresent() ) id = addColor(title);
+        color = getByTitle(title);
+        if( ! color.isPresent() ) {
+            color = addColor(title).map( (id) -> new Color(id,title) );
+        }
 
-        return id;
+        return color.get();
     }
     @Override
     public Optional<Color> getById(int id) throws SQLException {
