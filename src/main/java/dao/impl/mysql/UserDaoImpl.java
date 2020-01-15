@@ -33,55 +33,77 @@ class UserDaoImpl extends AbstractDao<User> implements UserDao {
     }
     @Override
     public Optional<Integer> deleteUser(long id) throws SQLException {
-        return deleteById(id, deleteUser);
+        Object[] parameters = new Object[] {id};
+
+        return deleteOrUpdateEntity(parameters, deleteUser);
+
     }
     @Override
     public Optional<Integer> updatePhone(long id, int phone) throws SQLException {
-        return updateOneColumnById(id, phone, updatePhone);
+        Object[] parameters = new Object[] {phone, id};
+
+        return deleteOrUpdateEntity(parameters, updatePhone);
+
     }
     @Override
     public Optional<Integer> updateName(long id, String name) throws SQLException {
-        return updateOneColumnById(id, name, updateName);
+        Object[] parameters = new Object[] {name, id};
+
+        return deleteOrUpdateEntity(parameters, updateName);
+
     }
     @Override
     public Optional<Integer> updateSurname(long id, String surname) throws SQLException {
-        return updateOneColumnById(id, surname, updateSurname);
+        Object[] parameters = new Object[] {surname, id};
+
+        return deleteOrUpdateEntity(parameters, updateSurname);
     }
     @Override
     public Optional<Integer> updatePassword(long id, String password) throws SQLException {
-        return updateOneColumnById(id, password, updatePassword);
+        Object[] parameters = new Object[] {password, id};
+
+        return deleteOrUpdateEntity(parameters, updatePassword);
+
     }
     @Override
     public Optional<Integer> updateStatus(long id, UserStatus status) throws SQLException {
-        return updateOneColumnById(id, status.getId(), updateStatus);
+        Object[] parameters = new Object[] {status.getId(), id};
+
+        return deleteOrUpdateEntity(parameters, updateStatus);
+
     }
     @Override
     public Optional<User> getById(long id) throws SQLException {
-        return getEntityByOneValue(id, getUserById)
-                .map((list) -> list.get(0));
+        Object[] parameters = new Object[] {id};
+
+        return getEntity(parameters, getUserById).map((list) -> list.get(0));
+
     }
     @Override
     public Optional<User> getByPhone(int phone) throws SQLException{
-        return getEntityByOneValue(phone, getUserByPhone)
-                .map((list) -> list.get(0));
+        Object[] parameters = new Object[] {phone};
+
+        return getEntity(parameters, getUserByPhone).map((list) -> list.get(0));
+
     }
 
 
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, User entity)  throws SQLException{
-        ps = con.prepareStatement(saveUser, Statement.RETURN_GENERATED_KEYS);
+    PreparedStatement getPreparedStatementForAddEntity(String sqlInsert, User entity)  throws SQLException{
+        PreparedStatement ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
+
         ps.setInt(1, entity.getPhone());
         ps.setString(2, entity.getName());
         ps.setString(3, entity.getSurname());
         ps.setString(4, entity.getPassword());
         ps.setInt(5, entity.getStatus().getId());
+
         return ps;
+
     }
     @Override
     Optional<List<User>> handleResultSet(ResultSet rs) throws SQLException {
-        if (!rs.next()) {
-            return Optional.empty();
-        }
+        if ( ! rs.next() ) return Optional.empty();
 
         List<User> list = new ArrayList<>();
         User user;
