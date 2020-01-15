@@ -19,30 +19,34 @@ public class UserStatusDaoImpl extends AbstractDao implements dao.interfaces.Use
 
     @Override
     public Optional<Integer> mergeUserStatus(UserStatus status) throws SQLException {
-        Optional<Integer> res = getEntityByOneValue(status.getTitle(), getUserStatusId)
-                .map((list) -> ((List<Integer>)list).get(0));
-        if(!res.isPresent()) {
-            res = addEntity(status, addUserStatus)
-                    .map((id) -> ((Long)id).intValue());
-        }
-        return res;
+        Optional<Integer> id;
+        Object[] parameters = new Object[] { status.getTitle() };
+
+        id = getEntity(parameters, getUserStatusId).map( (list) -> ((List<Integer>)list).get(0) );
+        if( ! id.isPresent() ) id = addEntity(status, addUserStatus).map( (idLong) -> ((Long)idLong).intValue() );
+
+        return id;
+
     }
 
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Object entity) throws SQLException {
+    PreparedStatement getPreparedStatementForAddEntity(String sqlInsert, Object entity) throws SQLException {
+        PreparedStatement ps;
         UserStatus status = (UserStatus) entity;
+
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
         ps.setString(1, status.getTitle());
+
         return ps;
+
     }
     @Override
     Optional<List<Integer>> handleResultSet(ResultSet rs) throws SQLException {
-        if(!rs.next()){
-            return Optional.empty();
-        }
+        if(!rs.next()) return Optional.empty();
 
         List<Integer> list = new ArrayList<>(1);
-        list.add(rs.getInt("id"));
+        list.add( rs.getInt("id" ));
+
         return Optional.of(list);
     }
 }
