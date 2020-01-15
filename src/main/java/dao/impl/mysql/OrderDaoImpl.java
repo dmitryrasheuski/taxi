@@ -28,28 +28,36 @@ class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
     }
     @Override
     public Optional<Integer> deleteOrder(long id) throws SQLException {
-        return deleteById(id, deleteOrder);
+        Object[] parameters = new Object[] {id};
+
+        return deleteOrUpdateEntity(parameters, deleteOrder);
+
     }
     @Override
     public Optional<List<Order>> getListByPassengerId(long passengerId) throws SQLException {
-        return getEntityByOneValue(passengerId, getListByPassengerId);
+        Object[] parameters = new Object[] {passengerId};
+
+        return getEntity(parameters, getListByPassengerId);
+
     }
 
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Order entity) throws SQLException {
+    PreparedStatement getPreparedStatementForAddEntity(String sqlInsert, Order entity) throws SQLException {
+        PreparedStatement ps;
+
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
         ps.setLong(1, entity.getPassenger().getId());
         ps.setLong(2, entity.getCar().getId());
         ps.setLong(3, entity.getFrom().getId());
         ps.setLong(4, entity.getWhere().getId());
         ps.setString(5, entity.getComment());
+
         return ps;
+
     }
     @Override
     Optional<List<Order>> handleResultSet(ResultSet rs) throws SQLException {
-        if(!rs.next()) {
-            return Optional.empty();
-        }
+        if( ! rs.next() ) return Optional.empty();
 
         List<Order> list = new ArrayList<>();
         Order order;
