@@ -7,50 +7,37 @@ import entity.car.Car;
 import entity.car.CarModel;
 import entity.car.Color;
 import entity.user.User;
-import entity.user.UserStatus;
 import entity.user.UserStatusType;
 import org.junit.*;
 
 import java.sql.SQLException;;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CarDaoTest {
-
-    private static DaoFactory daoFactory;
-    private static UserDao userDao;
-    private static CarDao carDao;
-    private static User driver;
     private static AtomicInteger i = new AtomicInteger(1);
 
+    private UserDao userDao;
+    private CarDao carDao;
+    private User driver;
     private Car car;
-    private Car dbCar;
-    private long idCar;
-
-    @BeforeClass
-    public static void setUp() throws Exception {
-        daoFactory = DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL);
-        carDao = daoFactory.getCarDao();
-        userDao = daoFactory.getUserDao();
-
-        driver = createTestDriver(123456789, "test", "test", "test");
-    }
-    @AfterClass()
-    public static void tearDown() throws Exception {
-        userDao.deleteUser(driver.getId());
-        daoFactory.closeDatasource();
-    }
 
     @Before
     public void setUpMethod() throws SQLException{
-        car = produceCar();
-        idCar = carDao.addCar(car).orElseThrow(NullPointerException::new);
-        car.setId(idCar);
+        DaoFactory daoFactory = DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL);
+
+        carDao = daoFactory.getCarDao();
+        userDao = daoFactory.getUserDao();
+        driver = UserDaoTest.generateUniqueUser(UserStatusType.DRIVER, userDao);
+        car = produceCar(driver, carDao);
+
     }
     @After
     public void tearDownMethod() throws SQLException {
-        carDao.deleteCar(idCar).orElseThrow(NullPointerException::new);
+
+        carDao.deleteCar( car.getId() ).orElseThrow(NullPointerException::new);
+        userDao.deleteUser( driver.getId() );
+
     }
 
     @Test(expected = SQLIntegrityConstraintViolationException.class)
@@ -60,27 +47,19 @@ public class CarDaoTest {
     }
     @Test
     public void getCar() throws SQLException {
-        dbCar = carDao.getCarById(idCar).orElseThrow(NullPointerException::new);
+        Car dbCar;
+
+        dbCar = carDao.getCarById( car.getId() ).orElseThrow(NullPointerException::new);
         Assert.assertEquals(dbCar, car);
-        dbCar = carDao.getCarByDriver(driver.getId()).orElseThrow(NullPointerException::new);
+        dbCar = carDao.getCarByDriver( driver.getId() ).orElseThrow(NullPointerException::new);
         Assert.assertEquals(dbCar, car);
+
     }
 
-    private static User createTestDriver(int phone, String name, String surname, String password) throws SQLException {
-        User d = User.builder()
-                .phone(phone)
-                .name(name)
-                .surname(surname)
-                .password(password)
-                .status(UserStatus.getInstance(UserStatusType.DRIVER))
-                .build();
-        long id = userDao.addUser(d).orElseThrow(NullPointerException::new);
-        d.setId(id);
-        return d;
-    }
-    private Car produceCar(){
+    static Car produceCar(User driver, CarDao carDao) throws SQLException {
         Integer count = i.getAndIncrement();
         String number = count.toString();
+
         switch (number.length()) {
             case (1) : {
                 number = "000" + count + "ТТ0";
@@ -99,11 +78,17 @@ public class CarDaoTest {
                 break;
             }
         }
-        return Car.builder()
+
+        Car car = Car.builder()
                 .driver(driver)
                 .number(number)
                 .model(new CarModel("testModel"))
                 .color(new Color("testColor"))
                 .build();
+        long carId = carDao.addCar(car).orElseThrow(NullPointerException::new);
+        car.setId(carId);
+
+        return car;
+
     }
 }

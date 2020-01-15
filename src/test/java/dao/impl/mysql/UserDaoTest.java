@@ -12,37 +12,15 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class UserDaoTest {
+    private static final AtomicInteger i = new AtomicInteger(1);
 
-    private static DaoFactory daoFactory;
-    private static UserDao userDao;
-    private static AtomicInteger i = new AtomicInteger(1);
-
+    private UserDao userDao;
     private User user;
-    private User dbUser;
-
-
-    @BeforeClass
-    public static void setUp(){
-        daoFactory = DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL);
-        userDao = daoFactory.getUserDao();
-    }
-    @AfterClass
-    public static void tearDown(){
-        daoFactory.closeDatasource();
-    }
 
     @Before
     public void setUpMethod() throws SQLException {
-        int phone = getUniquePhone();
-        user = User.builder()
-                .phone(phone)
-                .name("name")
-                .surname("surname")
-                .password("password")
-                .status(UserStatus.getInstance(UserStatusType.PASSENGER))
-                .build();
-        long id = userDao.addUser(user).orElseThrow(NullPointerException::new);
-        user.setId(id);
+        userDao = DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL).getUserDao();
+        user = generateUniqueUser(UserStatusType.PASSENGER, userDao);
     }
     @After
     public void tearDownMethod() throws SQLException {
@@ -56,6 +34,8 @@ public class UserDaoTest {
     }
     @Test
     public void getUser() throws SQLException {
+        User dbUser;
+
         dbUser = userDao.getById(user.getId()).orElseThrow(NullPointerException::new);
         Assert.assertEquals(user, dbUser);
         dbUser = userDao.getByPhone(user.getPhone()).orElseThrow(NullPointerException::new);
@@ -63,6 +43,7 @@ public class UserDaoTest {
     }
     @Test
     public void updateUser() throws SQLException {
+        User dbUser;
         String newPassword = "newPassword";
         String newName = "newName";
         String newSurname = "newSurname";
@@ -85,7 +66,24 @@ public class UserDaoTest {
         Assert.assertEquals(user, dbUser);
     }
 
-    private int getUniquePhone(){
+    static User generateUniqueUser(UserStatusType statusType, UserDao userDao) throws SQLException {
+        User user;
+
+        user = User.builder()
+                .phone( getUniquePhone() )
+                .name("name")
+                .surname("surname")
+                .password("password")
+                .status(UserStatus.getInstance(statusType))
+                .build();
+
+        long id = userDao.addUser(user).orElseThrow(NullPointerException::new);
+        user.setId(id);
+
+        return user;
+
+    }
+    private static int getUniquePhone(){
         return i.getAndIncrement();
     }
 
