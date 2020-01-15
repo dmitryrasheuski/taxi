@@ -24,42 +24,45 @@ public class AddressDaoImpl extends AbstractDao<Address> implements AddressDao {
     }
     @Override
     public Optional<Address> getAddress(long id) throws SQLException {
-        return getEntityByOneValue(id, getById)
-                .map((list) -> list.get(0));
+        Object[] parameters = new Object[]{ id };
+
+        return getEntity(parameters, getById).map((list) -> list.get(0));
+
     }
     @Override
     public Optional<Address> getAddress(String title) throws SQLException {
+        Object[] parameters = new Object[]{title};
+        Optional<Address> address;
 
-        Optional<Address> res = getEntityByOneValue(title, getByTitle)
-                .map((list) -> list.get(0));
-        if(!res.isPresent()){
-            res = addAddress(new Address(title))
-                    .map((id) -> new Address(id, title));
-        }
-        return res;
+        address = getEntity(parameters, getByTitle).map( (list) -> list.get(0) );
+        if ( ! address.isPresent() ) address = addAddress( new Address(title) ).map( (id) -> new Address(id, title) );
+
+        return address;
+
     }
 
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Address entity) throws SQLException {
+    PreparedStatement getPreparedStatementForAddEntity(String sqlInsert, Address entity) throws SQLException {
+        PreparedStatement ps;
+
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
         ps.setString(1, entity.getTitle());
+
         return ps;
+
     }
     @Override
     Optional<List<Address>> handleResultSet(ResultSet rs) throws SQLException {
-        if(!rs.next()) {
-            return Optional.empty();
-        }
+        if(!rs.next()) return Optional.empty();
 
         List<Address> list = new ArrayList<>();
-        Address address;
         long id;
         String title;
+
         do{
             id = rs.getLong("id");
             title = rs.getString("title");
-            address = new Address(id, title);
-            list.add(address);
+            list.add( new Address(id, title) );
         }while (rs.next());
 
         return Optional.of(list);
