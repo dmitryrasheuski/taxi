@@ -9,14 +9,14 @@ import java.sql.SQLException;
 
 public class MysqlDaoFactory implements DaoFactory {
     private static final Logger logger;
-    private static final ConnectionPool connectionPool;
+    private static final DataSource connectionPool;
     static {
         logger = Logger.getLogger(MysqlDaoFactory.class);
         try {
-            connectionPool = ConnectionPool.getInstance();
+            connectionPool = DataSource.getInstance();
         } catch (PropertyVetoException ex) {
-            logger.error("init ConnectionPool exception", ex);
-            throw new RuntimeException("init ConnectionPool exception", ex);
+            logger.error("init DataSource exception", ex);
+            throw new RuntimeException("init DataSource exception", ex);
         }
     }
 
