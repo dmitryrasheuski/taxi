@@ -1,29 +1,43 @@
 package dao.impl.mysql;
 
 import dao.interfaces.*;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 
-import java.beans.PropertyVetoException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+@Log4j
 public class MysqlDaoFactory implements DaoFactory {
-    private static final Logger logger;
     private static final DataSource connectionPool;
+    private static ThreadLocal<Connection> connectionThreadLocal;
     static {
-        logger = Logger.getLogger(MysqlDaoFactory.class);
-        try {
-            connectionPool = DataSource.getInstance();
-        } catch (PropertyVetoException ex) {
-            logger.error("init DataSource exception", ex);
-            throw new RuntimeException("init DataSource exception", ex);
-        }
+        connectionPool = DataSource.getInstance();
+
+        connectionThreadLocal = new ThreadLocal<Connection>() {
+            @Override
+            protected Connection initialValue() {
+
+                try {
+                    return connectionPool.getConnection();
+
+                } catch (SQLException ex) {
+                    log.error("The exception occurred when initializing 'MysqlDaoFactory' class at the moment of receiving connection to database", ex);
+                    throw new RuntimeException("The exception occurred when initializing 'MysqlDaoFactory' class at the moment of receiving connection to database", ex);
+                }
+            }
+
+        };
+
+    }
+
+    private Connection con;
+    {
+        con = connectionThreadLocal.get();
     }
 
     Connection getConnection() throws SQLException {
-        return connectionPool.getConnection();
+        return con;
     }
-
     @Override
     public UserDao getUserDao() {
         return new UserDaoImpl(this);
@@ -51,10 +65,6 @@ public class MysqlDaoFactory implements DaoFactory {
     @Override
     public CarModelDao getCarModelDao() {
         return new CarModelDaoImpl(this);
-    }
-    @Override
-    public void closeDatasource(){
-        connectionPool.closeDatasource();
     }
 
 }

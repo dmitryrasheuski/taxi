@@ -11,7 +11,6 @@ public interface DaoFactory {
     AddressDao getAddressDao();
     ColorDao getColorDao();
     CarModelDao getCarModelDao();
-    void closeDatasource();
 
     static DaoFactory getFactory(TypesDatabases type) {
         return type.factory;

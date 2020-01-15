@@ -58,7 +58,5 @@ class DataSource {
     Connection getConnection() throws SQLException {
         return pool.getConnection();
     }
-    void closeDatasource(){
-        pool.close();
-    }
+
 }
