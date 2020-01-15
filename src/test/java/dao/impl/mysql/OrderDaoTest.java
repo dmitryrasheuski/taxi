@@ -27,7 +27,7 @@ public class OrderDaoTest {
 
     @Before
     public void setUpMethod() throws SQLException {
-        daoFactory = DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL);
+        daoFactory = new MysqlDaoFactory();
         orderDao = daoFactory.getOrderDao();
         userDao = daoFactory.getUserDao();
         carDao = daoFactory.getCarDao();

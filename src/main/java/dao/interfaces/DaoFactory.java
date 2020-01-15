@@ -1,7 +1,5 @@
 package dao.interfaces;
 
-import dao.impl.mysql.MysqlDaoFactory;
-
 public interface DaoFactory {
 
     UserDao getUserDao();
@@ -12,18 +10,4 @@ public interface DaoFactory {
     ColorDao getColorDao();
     CarModelDao getCarModelDao();
 
-    static DaoFactory getFactory(TypesDatabases type) {
-        return type.factory;
-    }
-
-    enum TypesDatabases {
-        MY_SQL(new MysqlDaoFactory());
-
-        private DaoFactory factory;
-
-        TypesDatabases(DaoFactory factory) {
-            this.factory = factory;
-        }
-
-    }
 }

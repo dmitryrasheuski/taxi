@@ -1,6 +1,6 @@
 package entity.user;
 
-import dao.interfaces.DaoFactory;
+import dao.impl.mysql.MysqlDaoFactory;
 import dao.interfaces.UserStatusDao;
 
 import java.sql.SQLException;
@@ -8,9 +8,9 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum UserStatusType {
-    ADMIN (DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL).getUserStatusDao()),
-    PASSENGER (DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL).getUserStatusDao()),
-    DRIVER (DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL).getUserStatusDao());
+    ADMIN (new MysqlDaoFactory().getUserStatusDao()),
+    PASSENGER (new MysqlDaoFactory().getUserStatusDao()),
+    DRIVER (new MysqlDaoFactory().getUserStatusDao());
 
     private UserStatus status;
 

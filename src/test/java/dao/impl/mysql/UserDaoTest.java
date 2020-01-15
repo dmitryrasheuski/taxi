@@ -1,6 +1,5 @@
 package dao.impl.mysql;
 
-import dao.interfaces.DaoFactory;
 import dao.interfaces.UserDao;
 import entity.user.User;
 import entity.user.UserStatus;
@@ -19,7 +18,7 @@ public class UserDaoTest {
 
     @Before
     public void setUpMethod() throws SQLException {
-        userDao = DaoFactory.getFactory(DaoFactory.TypesDatabases.MY_SQL).getUserDao();
+        userDao = new MysqlDaoFactory().getUserDao();
         user = generateUniqueUser(UserStatusType.PASSENGER, userDao);
     }
     @After

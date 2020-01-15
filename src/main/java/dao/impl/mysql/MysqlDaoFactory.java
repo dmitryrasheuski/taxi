@@ -35,7 +35,7 @@ public class MysqlDaoFactory implements DaoFactory {
         con = connectionThreadLocal.get();
     }
 
-    Connection getConnection() throws SQLException {
+    Connection getConnection() {
         return con;
     }
     @Override

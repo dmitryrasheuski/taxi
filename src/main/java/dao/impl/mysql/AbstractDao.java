@@ -13,13 +13,7 @@ abstract class AbstractDao<T> {
 
     protected AbstractDao(MysqlDaoFactory factory) {
         this.daoFactory = factory;
-
-        try {
-            con = daoFactory.getConnection();
-        } catch (SQLException ex) {
-            log.error("The exception of the 'AbstractDao' class initialization had occurred at the moment of the received connection to the database", ex);
-            throw new RuntimeException("The exception of the 'AbstractDao' class initialization had occurred at the moment of the received connection to the database", ex);
-        }
+        this.con = daoFactory.getConnection();
 
     }
 
