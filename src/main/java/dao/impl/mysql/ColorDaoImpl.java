@@ -25,46 +25,50 @@ public class ColorDaoImpl extends AbstractDao<Color> implements ColorDao {
     }
     @Override
     public Optional<Color> getColorByTitle(String title) throws SQLException {
-        return getEntityByOneValue(title, getColorByTitle).map((list) -> list.get(0));
+        Object[] parameters = new Object[] {title};
+
+        return getEntity(parameters, getColorByTitle).map((list) -> list.get(0));
     }
     @Override
     public Optional<Integer> getIdOrElseAddAndGet(String title) throws  SQLException {
-        Optional<Integer> id = getColorByTitle(title).map(Color::getId);
-        if(!id.isPresent()) {
-            id = addColor(title);
-        }
+        Optional<Integer> id;
+
+        id  = getColorByTitle(title).map(Color::getId);
+        if( !id.isPresent() ) id = addColor(title);
+
         return id;
     }
     @Override
     public Optional<Color> getById(int id) throws SQLException {
-        return getEntityByOneValue(id, getColorById).map((list -> list.get(0)));
+        Object[] parameters = new Object[] {id};
+
+        return getEntity(parameters, getColorById).map((list -> list.get(0)));
     }
 
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Color entity) throws SQLException {
+    PreparedStatement getPreparedStatementForAddEntity(String sqlInsert, Color entity) throws SQLException {
+        PreparedStatement ps;
+
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
         ps.setString(1, entity.getTitle());
-        return ps;
-    }
 
+        return ps;
+
+    }
     @Override
     Optional<List<Color>> handleResultSet(ResultSet rs) throws SQLException {
-        if (!rs.next()) {
-            return Optional.empty();
-        }
+        if (!rs.next()) return Optional.empty();
 
         List<Color> list = new ArrayList<>();
-        Color color;
         int id;
         String title;
         do{
             id = rs.getInt("id");
             title = rs.getString("title");
-            color = new Color(title);
-            color.setId(id);
-            list.add(color);
+            list.add( new Color(id, title) );
         } while (rs.next());
 
         return Optional.of(list);
     }
+
 }
