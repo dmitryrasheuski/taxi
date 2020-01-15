@@ -23,20 +23,20 @@ abstract class AbstractDao<T> {
 
     }
 
-    private void startTransaction() throws SQLException {
+    void startTransaction() throws SQLException {
         if (con == null) return;
 
         con.setAutoCommit(false);
 
     }
-    private void commit() throws SQLException {
+    void commit() throws SQLException {
         if (con == null) return;
 
         con.commit();
         con.setAutoCommit(true);
 
     }
-    private void rollback(Exception ex) {
+    void rollback(Exception ex) {
         if (con == null) return;
 
         try {
@@ -54,7 +54,7 @@ abstract class AbstractDao<T> {
         }
 
     }
-    private void close(AutoCloseable resource, Exception ex){
+    void close(AutoCloseable resource, Exception ex){
         if (resource == null) return;
 
         try {
@@ -67,7 +67,7 @@ abstract class AbstractDao<T> {
         }
 
     }
-    private void preparedStatementParameterSetter(Object[] parameters, PreparedStatement ps) throws SQLException{
+    void preparedStatementParameterSetter(Object[] parameters, PreparedStatement ps) throws SQLException{
         int i = 0;
 
         for (Object param : parameters) {

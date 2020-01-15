@@ -28,7 +28,7 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
     public Optional<Long> addCar(Car car) throws SQLException {
         int colorId = daoFactory.getColorDao()
                 .getIdOrElseAddAndGet(car.getColor().getTitle())
-                .orElseThrow(() -> new IllegalStateException("The value 'color.title'  wasn't found and wasn't added in the database"));
+                .orElseThrow(() -> new IllegalStateException("The value 'color.title'  wasn't found and wasn't added into the database"));
         car.getColor().setId(colorId);
         int modelId = daoFactory.getCarModelDao()
                 .getOrElseAddAndGetId(car.getModel().getTitle())
@@ -40,28 +40,39 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
         addCarDriverRelationship(carId, car.getDriver().getId());
 
         return Optional.of(carId);
+
     }
     @Override
     public Optional<Integer> deleteCar(long idCar) throws SQLException {
-        return deleteById(idCar, deleteCar);
+        Object[] parameters = new Object[] {idCar};
+
+        return deleteOrUpdateEntity(parameters, deleteCar);
+
     }
     @Override
     public Optional<Car> getCarById(long idCar) throws SQLException {
-        return getEntityByOneValue(idCar, getCarById)
-                .map((list) -> list.get(0));
+        Object[] parameters = new Object[] {idCar};
+
+        return getEntity(parameters, getCarById).map((list) -> list.get(0));
+
     }
     @Override
     public Optional<Car> getCarByDriver(long idDriver) throws SQLException {
-        return getEntityByOneValue(idDriver, getCarByDriver)
-                .map((list) -> list.get(0));
+        Object[] parameters = new Object[] {idDriver};
+
+        return getEntity(parameters, getCarByDriver).map((list) -> list.get(0));
+
     }
 
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, Car entity) throws SQLException {
+    PreparedStatement getPreparedStatementForAddEntity(String sqlInsert, Car entity) throws SQLException {
+        PreparedStatement ps;
+
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
         ps.setString(1, entity.getNumber());
         ps.setInt(2, entity.getColor().getId());
         ps.setInt(3, entity.getModel().getId());
+
         return ps;
     }
     @Override
@@ -109,24 +120,23 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
     }
 
     private void addCarDriverRelationship(long carId, long driverId) throws SQLException {
-        Connection con = null;
+        Object[] parameters = new Object[] {driverId, carId};
         PreparedStatement ps = null;
         Exception exception = null;
+
         try {
-            con = getConnection();
             ps = con.prepareStatement(buildCarDriverRelationship);
-            ps.setLong(1, driverId);
-            ps.setLong(2, carId);
+            preparedStatementParameterSetter(parameters, ps);
             ps.executeUpdate();
 
         } catch (Exception ex){
-            rollback(con, ex);
             exception = ex;
             throw ex;
 
         } finally {
             close(ps, exception);
-            close(con, exception);
         }
+
     }
+
 }
