@@ -1,6 +1,5 @@
 package dao.impl.mysql;
 
-import appException.dao.AppSqlException;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
