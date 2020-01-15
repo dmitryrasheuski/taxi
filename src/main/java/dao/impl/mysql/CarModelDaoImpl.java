@@ -25,45 +25,53 @@ public class CarModelDaoImpl extends AbstractDao<CarModel> implements CarModelDa
     }
     @Override
     public Optional<CarModel> getCarModel(String title) throws SQLException {
-        return getEntityByOneValue(title, getCarModelByTitle).map((list) -> list.get(0));
+        Object[] parameters = new Object[] {title};
+
+        return getEntity(parameters, getCarModelByTitle).map((list) -> list.get(0));
+
     }
     @Override
     public Optional<CarModel> getOrElseAddAndGetId(String title) throws SQLException {
-        Optional<CarModel> model = getCarModel(title);
-        if(!model.isPresent()){
-            model = addCarModel(new CarModel(title))
-                    .map((id) -> new CarModel(id, title));
-        }
+        Optional<CarModel> model;
+
+        model = getCarModel(title);
+        if( !model.isPresent() ) model = addCarModel(new CarModel(title)).map((id) -> new CarModel(id, title));
+
         return model;
+
     }
     @Override
     public Optional<CarModel> getById(int id) throws SQLException {
-        return getEntityByOneValue(id, getCarModelById).map((list) -> list.get(0));
+        Object[] parameters = new Object[] {id};
+
+        return getEntity(parameters, getCarModelById).map((list) -> list.get(0));
+
     }
 
     @Override
-    PreparedStatement getPreparedStatementForAddEntity(Connection con, PreparedStatement ps, String sqlInsert, CarModel entity) throws SQLException {
-       ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-       ps.setString(1, entity.getTitle());
-       return ps;
+    PreparedStatement getPreparedStatementForAddEntity(String sqlInsert, CarModel entity) throws SQLException {
+        PreparedStatement ps;
+
+        ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
+        ps.setString(1, entity.getTitle());
+
+        return ps;
     }
     @Override
     Optional<List<CarModel>> handleResultSet(ResultSet rs) throws SQLException {
-        if (!rs.next()){
-            return Optional.empty();
-        }
+        if ( ! rs.next() ) return Optional.empty();
 
         List<CarModel> list = new ArrayList<>();
-        CarModel model;
         int id;
         String title;
         do{
             id = rs.getInt("id");
             title = rs.getString("title");
-            model = new CarModel( id,title);
-            list.add(model);
+            list.add( new CarModel(id, title));
         } while (rs.next());
 
         return Optional.of(list);
+
     }
+
 }
