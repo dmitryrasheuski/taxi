@@ -6,8 +6,8 @@ import java.util.Optional;
 
 public interface IUserRegistering {
     /**
-     * @throws IllegalArgumentException if the 'name', 'surname', 'password', 'phone', 'status' user's fields were not initialized
-     * @return      If the registry successful completed, return the current user at which the 'id' field was installed, otherwise return empty Optional.
+     * @param user this parameter must have got the not-null fields: name, surname, phone, password, status
+     * @return  an Optional describing the current user at which the 'id' field has been installed, if the registration was successful completed, otherwise return an empty Optional.
      */
     Optional<User> register(User user);
 }

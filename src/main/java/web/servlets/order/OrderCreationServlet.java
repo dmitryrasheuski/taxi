@@ -5,7 +5,7 @@ import entity.order.Order;
 import entity.user.User;
 import service.interfaces.address.IAddressProviding;
 import service.interfaces.order.IOrderCreating;
-import service.interfaces.user.IPassengerInfoProviding;
+import service.interfaces.user.IUserService;
 import web.ServletUtils;
 
 import javax.servlet.ServletException;
@@ -15,11 +15,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Optional;
 
 @WebServlet(urlPatterns = "/orderCreation")
 public class OrderCreationServlet extends HttpServlet {
     private static IOrderCreating orderService = null;
-    private static IPassengerInfoProviding userService = null;
+    private static IUserService userService = null;
     private static IAddressProviding addressProvider = null;
 
     @Override
@@ -34,7 +35,7 @@ public class OrderCreationServlet extends HttpServlet {
 
     private Order getOrder(HttpServletRequest req) {
 
-        User passenger = getUserForOrder(req);
+        User passenger = getUserForOrder(req).orElse(null);
         Address from = getAddress("from", req);
         Address where = getAddress("where", req);
         String comment = ServletUtils.getParameterFromRequest("comment", req).orElse(null);
@@ -46,16 +47,20 @@ public class OrderCreationServlet extends HttpServlet {
                 .comment(comment)
                 .build();
     }
-    private User getUserForOrder(HttpServletRequest req) {
+    private Optional<User> getUserForOrder(HttpServletRequest req) {
 
         User passenger = (User) req.getSession().getAttribute("user");
         if (passenger == null) {
+
             passenger = ServletUtils.getUserFromRequest(req);
-            passenger = userService.findPassengerInfo(passenger)
-                    .orElse(userService.addPassengerInfo(passenger));
+
+            Optional<User> res = userService.getUser(passenger);
+            if( ! res.isPresent() ) res = userService.addUser(passenger);
+
+            passenger = res.orElse(null);
         }
 
-        return passenger;
+        return Optional.ofNullable(passenger);
 
     }
     private Address getAddress(String description, HttpServletRequest req) {
