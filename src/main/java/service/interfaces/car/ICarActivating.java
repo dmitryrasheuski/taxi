@@ -10,7 +10,7 @@ public interface ICarActivating {
      */
     boolean activateCar(Car car);
     /**
-     * This method remove car to WorkingCar. The car most have id.
+     * This method remove car from WorkingCar. The car most have id.
      * @param car The car is instance of "Car" class in which the 'id' field must be set
      * @return true if 'workingCar' changed as a result of the call
      */
