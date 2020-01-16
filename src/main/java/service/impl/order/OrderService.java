@@ -5,11 +5,14 @@ import entity.car.Car;
 import entity.order.Order;
 import entity.order.OrderWaitingList;
 import entity.user.User;
+import lombok.extern.log4j.Log4j;
 import service.interfaces.order.*;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
+@Log4j
 public class OrderService implements IOrderCreating, IOrderServing, IOrderClosing, ITripListProviding, IOrderWaitingListProviding {
     private OrderDao dao;
     private OrderWaitingList orderWaitingList;
@@ -62,7 +65,17 @@ public class OrderService implements IOrderCreating, IOrderServing, IOrderClosin
 
     @Override
     public List<Order> getTripList(User user) {
-        return null;
+        if (user == null) return new ArrayList<>();
+
+        List<Order> list = new ArrayList<>();
+        try {
+            list = dao.getListByPassengerId(user.getId()).orElse(new ArrayList<>());
+        } catch (SQLException ex) {
+            log.error("Finding order list by userId" + user.getId() , ex);
+        }
+
+        return list;
+
     }
 
     private boolean validateOrder(Order order) {
