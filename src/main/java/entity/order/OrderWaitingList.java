@@ -2,13 +2,10 @@ package entity.order;
 
 import entity.user.User;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class OrderWaitingList {
-    private static final Map<User, Order> map = new HashMap<>();
+    private static final List<Order> list = new LinkedList<>();
     private static final OrderWaitingList INSTANCE = new OrderWaitingList();
 
     private OrderWaitingList() {}
@@ -17,12 +14,17 @@ public class OrderWaitingList {
     }
 
     public boolean addOrder(Order order) {
-        return map.put(order.getPassenger(), order) != null;
+        return list.add(order);
     }
     public void removeOrder(Order order) {
-        map.remove(order.getPassenger());
+        list.remove(order);
     }
     public Optional<Order> getOrderByPassenger(User passenger) {
-        return Optional.ofNullable( map.get(passenger) );
+        return list.stream()
+                .filter( (order) -> order.getPassenger().equals(passenger) )
+                .findFirst();
+    }
+    public List<Order> getOrderList() {
+        return new ArrayList<>(list);
     }
 }

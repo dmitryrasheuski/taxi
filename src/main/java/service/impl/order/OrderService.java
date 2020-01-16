@@ -49,6 +49,7 @@ public class OrderService implements IOrderCreating, IOrderServing, IOrderClosin
         Order order = orderWaitingList.getOrderByPassenger(passenger).orElse(null);
         if (order == null) return null;
 
+        orderWaitingList.removeOrder(order);
         order.setCar(car);
         return order;
 
@@ -56,7 +57,7 @@ public class OrderService implements IOrderCreating, IOrderServing, IOrderClosin
 
     @Override
     public List<Order> getOrderWaitingList() {
-        return null;
+        return orderWaitingList.getOrderList();
     }
 
     @Override
