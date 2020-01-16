@@ -16,8 +16,8 @@ public class OrderWaitingList {
         return INSTANCE;
     }
 
-    public void addOrder(Order order) {
-        map.put(order.getPassenger(), order);
+    public boolean addOrder(Order order) {
+        return map.put(order.getPassenger(), order) != null;
     }
     public void removeOrder(Order order) {
         map.remove(order.getPassenger());
