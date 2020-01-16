@@ -9,14 +9,14 @@ import service.interfaces.order.*;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 public class OrderService implements IOrderCreating, IOrderServing, IOrderClosing, ITripListProviding, IOrderWaitingListProviding {
     private OrderDao dao;
     private OrderWaitingList orderWaitingList;
 
-    public OrderService(OrderDao dao) {
+    public OrderService(OrderDao dao, OrderWaitingList list) {
         this.dao = dao;
+        this.orderWaitingList = list;
     }
 
     @Override
@@ -44,7 +44,14 @@ public class OrderService implements IOrderCreating, IOrderServing, IOrderClosin
 
     @Override
     public Order servePassenger(User passenger, Car car) {
-        return null;
+        if (passenger == null || car == null) return null;
+
+        Order order = orderWaitingList.getOrderByPassenger(passenger).orElse(null);
+        if (order == null) return null;
+
+        order.setCar(car);
+        return order;
+
     }
 
     @Override
