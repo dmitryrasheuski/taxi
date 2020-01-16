@@ -7,7 +7,9 @@ import entity.order.OrderWaitingList;
 import entity.user.User;
 import service.interfaces.order.*;
 
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public class OrderService implements IOrderCreating, IOrderServing, IOrderClosing, ITripListProviding, IOrderWaitingListProviding {
     private OrderDao dao;
@@ -18,7 +20,17 @@ public class OrderService implements IOrderCreating, IOrderServing, IOrderClosin
     }
 
     @Override
-    public void closeOrder(Order order) {
+    public boolean closeOrder(Order order) {
+        if ( ! validateOrder(order) ) return false;
+
+        long id = 0L;
+        try {
+            id = dao.addOrder(order).orElse(-1L);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return id > 0;
 
     }
 
@@ -43,5 +55,16 @@ public class OrderService implements IOrderCreating, IOrderServing, IOrderClosin
     @Override
     public List<Order> getTripList(User user) {
         return null;
+    }
+
+    private boolean validateOrder(Order order) {
+        if (order == null) return false;
+        if (order.getPassenger() == null) return false;
+        if (order.getCar() == null) return false;
+        if (order.getFrom() == null) return false;
+        if (order.getWhere() == null) return false;
+
+        return true;
+
     }
 }

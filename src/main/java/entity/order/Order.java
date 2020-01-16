@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 public class Order {
-    private long id;
+    private Long id;
     private User passenger;
     private Car car;
     private Address from;
