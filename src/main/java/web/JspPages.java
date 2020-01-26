@@ -2,8 +2,8 @@ package web;
 
 public enum JspPages {
 
-    PAGE_PATTERN,
-    INDEX,
+    PAGE_PATTERN("webapp/view/jsp/pagePattern.jsp"),
+    INDEX("webapp/index.jsp"),
 
     LOGIN,
     PASSENGER_REGISTRATION,
@@ -19,6 +19,12 @@ public enum JspPages {
     CAR_ACTIVATION,
 
     INFO;
+
+    private String path;
+
+    JspPages(String path){
+        this.path = path;
+    }
 
     public String getPath(){
         return null;
