@@ -10,30 +10,8 @@
     </p>
 </c:if>
 
-<c:choose>
-    <c:when test="${sessionScope.nextPage == JspPages.ORDER}" >
-        <%@include file="content/order.jsp"%>
-    </c:when>
-    <c:when test="${sessionScope.nextPage == JspPages.ORDER_RESPONSE}" >
-        <%@include file="content/orderResponse.jsp"%>
-    </c:when>
-    <c:when test="${sessionScope.nextPage == JspPages.LOGIN}" >
-        <%@include file="content/login.jsp"%>
-    </c:when>
-    <c:when test="${sessionScope.nextPage == JspPages.INFO}" >
-        <%@include file="content/info.jsp"%>
-    </c:when>
-    <c:when test="${sessionScope.nextPage == JspPages.REGISTRY}" >
-        <%@include file="content/registry.jsp"%>
-    </c:when>
-    <c:when test="${sessionScope.nextPage == JspPages.ORDER_RESPONSE}" >
-        <%@include file="content/registryResponse.jsp"%>
-    </c:when>
-    <c:when test="${sessionScope.nextPage == JspPages.TRIP_LIST}" >
-        <%@ include file="content/tripList.jsp"%>
-    </c:when>
-
-    <c:otherwise>
-        <%@include file="content/order.jsp"%>
-    </c:otherwise>
-</c:choose>
+<c:forEach var="page" items="${JspPages.values}" >
+    <c:if test="${sessionScope.nextPage == page}" >
+        <jsp:include page="${page.getPath}" />
+    </c:if>
+</c:forEach>
