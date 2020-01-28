@@ -5,20 +5,20 @@ public enum JspPages {
     PAGE_PATTERN("webapp/view/jsp/pagePattern.jsp"),
     INDEX("webapp/index.jsp"),
 
-    LOGIN,
-    PASSENGER_REGISTRATION,
-    DRIVER_REGISTRATION,
+    LOGIN(""),
+    PASSENGER_REGISTRATION(""),
+    DRIVER_REGISTRATION(""),
 
-    CREATE_ORDER,
-    ORDER_RESPONSE,
-    CURRENT_ORDER,
-    ORDER_WAITING_LIST,
-    TRIP_LIST,
+    CREATE_ORDER(""),
+    ORDER_RESPONSE(""),
+    CURRENT_ORDER(""),
+    ORDER_WAITING_LIST(""),
+    TRIP_LIST(""),
 
-    CAR_REGISTRATION,
-    CAR_ACTIVATION,
+    CAR_REGISTRATION(""),
+    CAR_ACTIVATION(""),
 
-    INFO;
+    INFO("");
 
     private String path;
 
