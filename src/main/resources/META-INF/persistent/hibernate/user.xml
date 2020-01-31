@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="entity.user">
+    <class name="User" table="users" >
+
+        <id name="id" >
+            <generator class="identity" />
+        </id>
+        <property name="phone" />
+        <property name="name" />
+        <property name="surname" />
+        <property name="password" />
+        <many-to-one name="status" column="status_id" class="UserStatus" />
+
+    </class>
+</hibernate-mapping>
