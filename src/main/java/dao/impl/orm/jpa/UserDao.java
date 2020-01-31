@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class UserDao extends AbstractDao<User> implements dao.interfaces.UserDao {
+class UserDao extends AbstractDao<User> implements dao.interfaces.UserDao {
     private static final String getUserByPhone = "SELECT u FROM User u WHERE phone = :phone";
 
-    public UserDao(JpaDaoFactory daoFactory) {
+    UserDao(JpaDaoFactory daoFactory) {
         super(daoFactory);
     }
 
