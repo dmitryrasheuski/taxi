@@ -2,36 +2,46 @@ package dao.impl.orm.jpa;
 
 import entity.car.CarModel;
 
-import javax.persistence.EntityManager;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-public class CarModelDao implements dao.interfaces.CarModelDao {
-    private JpaDaoFactory daoFactory;
-    private EntityManager entityManager;
+class CarModelDao extends AbstractDao<CarModel> implements dao.interfaces.CarModelDao {
+    private static final String getByTitle = "SELECT cm FROM CarModel cm WHERE cm.title = :title";
 
-    public CarModelDao(JpaDaoFactory daoFactory) {
-        this.daoFactory = daoFactory;
-        this.entityManager = daoFactory.getEntityManager();
+    CarModelDao(JpaDaoFactory daoFactory) {
+        super(daoFactory);
     }
 
     @Override
     public Optional<Integer> addCarModel(CarModel model) throws SQLException {
-        return Optional.empty();
+        return addEntity(model)
+                .map(CarModel::getId);
     }
-
     @Override
     public Optional<CarModel> getCarModel(String title) throws SQLException {
-        return Optional.empty();
-    }
+        Map<String, Object> parameter = new LinkedHashMap<>(1);
+        parameter.put("title", title);
 
+        List<CarModel> list = getEntities(getByTitle, parameter);
+
+        return list.isEmpty() ? Optional.empty() : Optional.of( list.get(0) );
+    }
     @Override
     public CarModel getOrElseAddAndGet(String title) throws SQLException {
-        return null;
-    }
+        Optional<CarModel> res = Optional.empty();
 
+        res = getCarModel(title);
+        if ( ! res.isPresent() ) {
+            res = addCarModel(new CarModel(title)).map( (id) -> new CarModel(id, title) );
+        }
+
+        return res.get();
+    }
     @Override
     public Optional<CarModel> getById(int id) throws SQLException {
-        return Optional.empty();
+        return getEntity(CarModel.class, (long)id);
     }
 }

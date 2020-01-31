@@ -10,6 +10,7 @@
         <mapping resource="META-INF/persistent/hibernate/user.xml" />
         <mapping resource="META-INF/persistent/hibernate/userStatus.xml" />
         <mapping resource="META-INF/persistent/hibernate/color.xml" />
+        <mapping resource="META-INF/persistent/hibernate/carModel.xml" />
 
     </session-factory>
 </hibernate-configuration>
