@@ -2,21 +2,23 @@ package dao.impl.orm.jpa;
 
 import entity.user.UserStatus;
 
-import javax.persistence.EntityManager;
 import java.sql.SQLException;
-import java.util.Optional;
+import java.util.*;
 
-public class UserStatusDao implements dao.interfaces.UserStatusDao {
-    private JpaDaoFactory daoFactory;
-    private EntityManager entityManager;
+class UserStatusDao extends AbstractDao<UserStatus> implements dao.interfaces.UserStatusDao {
+    private static final String getByTitle = "SELECT us FROM UserStatus us WHERE us.title = :title ";
 
-    public UserStatusDao(JpaDaoFactory daoFactory) {
-        this.daoFactory = daoFactory;
-        this.entityManager = daoFactory.getEntityManager();
+    UserStatusDao(JpaDaoFactory daoFactory) {
+        super(daoFactory);
     }
 
     @Override
     public Optional<Integer> mergeUserStatus(UserStatus status) throws SQLException {
-        return Optional.empty();
+        Map<String, Object> parameters = new LinkedHashMap<>(1);
+        parameters.put("title", status.getTitle());
+
+        List<UserStatus> list = getEntities(getByTitle, parameters);
+
+        return list.isEmpty() ? addEntity(status).map(UserStatus::getId) : Optional.of( list.get(0).getId() );
     }
 }
