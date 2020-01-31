@@ -6,7 +6,7 @@ import org.hibernate.cfg.Environment;
 import javax.persistence.EntityManagerFactory;
 import java.util.ResourceBundle;
 
-class HibernateDataSource implements DataSource {
+public class HibernateDataSource implements DataSource {
     private static final HibernateDataSource INSTANCE;
     static {
         INSTANCE = new HibernateDataSource();
@@ -27,22 +27,12 @@ class HibernateDataSource implements DataSource {
     }
 
     private Configuration getConfiguration() {
-        ResourceBundle rb = ResourceBundle.getBundle("db.properties");
+        ResourceBundle rb = ResourceBundle.getBundle("db");
 
-        return new Configuration()
+        return new Configuration().configure("META-INF/persistent/hibernate/conf.xml")
                 .setProperty( Environment.USER, rb.getString("user") )
                 .setProperty(Environment.PASS, rb.getString("password"))
                 .setProperty(Environment.DRIVER, rb.getString("driver"))
-                .setProperty(Environment.URL, rb.getString("url"))
-
-                .setProperty(Environment.DIALECT, "org.hibernate.dialect.MySQLDialect")
-
-                .addAnnotatedClass(UserDao.class)
-                .addAnnotatedClass(UserStatusDao.class)
-                .addAnnotatedClass(CarDao.class)
-                .addAnnotatedClass(CarModelDao.class)
-                .addAnnotatedClass(ColorDao.class)
-                .addAnnotatedClass(OrderDao.class)
-                .addAnnotatedClass(AddressDao.class);
+                .setProperty(Environment.URL, rb.getString("url"));
     }
 }
