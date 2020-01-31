@@ -1,36 +1,50 @@
 package dao.impl.orm.jpa;
 
 import entity.car.Color;
+import entity.order.Order;
 
-import javax.persistence.EntityManager;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-public class ColorDao implements dao.interfaces.ColorDao {
-    private JpaDaoFactory daoFactory;
-    private EntityManager entityManager;
+class ColorDao extends AbstractDao<Color> implements dao.interfaces.ColorDao {
+    private static final String getByTitle = "SELECT c FROM Color c WHERE c.title = :title";
 
-    public ColorDao(JpaDaoFactory daoFactory) {
-        this.daoFactory = daoFactory;
-        this.entityManager = daoFactory.getEntityManager();
+    ColorDao(JpaDaoFactory daoFactory) {
+        super(daoFactory);
     }
+
     @Override
     public Optional<Integer> addColor(String title) throws SQLException {
-        return Optional.empty();
-    }
 
+        Optional<Color> entity = addEntity(new Color(title));
+
+        return entity.map( Color::getId );
+    }
     @Override
     public Optional<Color> getByTitle(String title) throws SQLException {
-        return Optional.empty();
-    }
+        Map<String, Object> parameters = new LinkedHashMap<>(1);
+        parameters.put("title", title);
 
+        List<Color> list = getEntities(getByTitle, parameters);
+
+        return list.isEmpty() ? Optional.empty() : Optional.of( list.get(0) );
+    }
     @Override
     public Color getOrElseAddAndGet(String title) throws SQLException {
-        return null;
-    }
 
+        Optional<Color> res = getByTitle(title);
+
+        if ( ! res.isPresent() ) {
+            res = addColor(title).map( (id) -> new Color(id, title) );
+        }
+
+        return res.get();
+    }
     @Override
     public Optional<Color> getById(int id) throws SQLException {
-        return Optional.empty();
+        return getEntity(Color.class, (long) id);
     }
 }
