@@ -1,5 +1,7 @@
 package dao.impl.mysql;
 
+import dao.impl.orm.jpa.HibernateDataSource;
+import dao.impl.orm.jpa.JpaDaoFactory;
 import dao.interfaces.UserDao;
 import entity.user.User;
 import entity.user.UserStatus;
@@ -18,30 +20,43 @@ public class UserDaoTest {
 
     @Before
     public void setUpMethod() throws SQLException {
-        userDao = new MysqlDaoFactory().getUserDao();
-        user = generateUniqueUser(UserStatusType.PASSENGER, userDao);
+        userDao = new JpaDaoFactory(HibernateDataSource.getInstance()).getUserDao();
     }
     @After
     public void tearDownMethod() throws SQLException {
-        userDao.deleteUser(user.getId()).orElseThrow(NullPointerException::new);
+        if( user != null ) userDao.deleteUser( user.getId() );
     }
 
     @Test(expected = SQLIntegrityConstraintViolationException.class)
     public void addUser() throws SQLException {
-        //User's phone most be unique, else database throw the SQLIntegrityConstraintViolationException
-        userDao.addUser(user);
+        user = generateAndAddToDbUniqueUser(UserStatusType.PASSENGER, userDao);
+
+        User duplicateUser = User.builder()
+                .name(user.getName())
+                .surname(user.getSurname())
+                .phone(user.getPhone())
+                .password(user.getPassword())
+                .status(user.getStatus())
+                .build();
+        userDao.addUser(duplicateUser);
     }
     @Test
     public void getUser() throws SQLException {
+        user = generateAndAddToDbUniqueUser(UserStatusType.PASSENGER, userDao);
         User dbUser;
 
-        dbUser = userDao.getById(user.getId()).orElseThrow(NullPointerException::new);
+        dbUser = userDao.getById ( user.getId() ).orElseThrow(NullPointerException::new);
         Assert.assertEquals(user, dbUser);
-        dbUser = userDao.getByPhone(user.getPhone()).orElseThrow(NullPointerException::new);
+
+        dbUser = userDao.getByPhone( user.getPhone() ).orElseThrow(NullPointerException::new);
         Assert.assertEquals(user, dbUser);
+
+        removeUser();
     }
     @Test
     public void updateUser() throws SQLException {
+        user = generateAndAddToDbUniqueUser(UserStatusType.PASSENGER, userDao);
+
         User dbUser;
         String newPassword = "newPassword";
         String newName = "newName";
@@ -63,9 +78,11 @@ public class UserDaoTest {
 
         dbUser = userDao.getById(user.getId()).orElseThrow(NullPointerException::new);
         Assert.assertEquals(user, dbUser);
+
+        removeUser();
     }
 
-    static User generateUniqueUser(UserStatusType statusType, UserDao userDao) throws SQLException {
+    static User generateAndAddToDbUniqueUser(UserStatusType statusType, UserDao userDao) throws SQLException {
         User user;
 
         user = User.builder()
@@ -84,6 +101,11 @@ public class UserDaoTest {
     }
     private static int getUniquePhone(){
         return i.getAndIncrement();
+    }
+
+    private void removeUser() throws SQLException {
+        userDao.deleteUser( user.getId() );
+        user = null;
     }
 
 }
