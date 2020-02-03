@@ -49,7 +49,9 @@ class ColorDao extends AbstractDao<Color> implements dao.interfaces.ColorDao {
         return getEntity(Color.class, (long) id);
     }
     @Override
-    public boolean remove(int id) throws SQLException {
-        return removeEntity(Color.class, (long)id);
+    public boolean remove(Color color) throws SQLException {
+        if (color == null) return false;
+
+        return removeEntity(Color.class, (long)color.getId());
     }
 }

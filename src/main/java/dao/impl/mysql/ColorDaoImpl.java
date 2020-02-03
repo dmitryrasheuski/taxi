@@ -48,8 +48,10 @@ public class ColorDaoImpl extends AbstractDao<Color> implements ColorDao {
         return getEntity(parameters, getColorById).map( (list) -> list.get(0) );
     }
     @Override
-    public boolean remove(int id) throws SQLException {
-        Object[] parameters = new Object[] {id};
+    public boolean remove(Color color) throws SQLException {
+        if (color == null) return false;
+
+        Object[] parameters = new Object[] {color.getId()};
 
         return deleteOrUpdateEntity(parameters, removeColor).isPresent();
     }
