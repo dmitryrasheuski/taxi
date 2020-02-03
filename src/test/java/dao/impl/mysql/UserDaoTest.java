@@ -7,6 +7,7 @@ import entity.user.User;
 import entity.user.UserStatus;
 import entity.user.UserStatusType;
 import org.junit.*;
+import org.junit.rules.ExpectedException;
 
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -18,16 +19,21 @@ public class UserDaoTest {
     private UserDao userDao;
     private User user;
 
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
+
     @Before
     public void setUpMethod() throws SQLException {
         userDao = new JpaDaoFactory(HibernateDataSource.getInstance()).getUserDao();
     }
     @After
     public void tearDownMethod() throws SQLException {
-        if( user != null ) userDao.deleteUser( user.getId() );
+        if( user != null ) {
+            userDao.deleteUser( user.getId() );
+        }
     }
 
-    @Test(expected = SQLIntegrityConstraintViolationException.class)
+    @Test
     public void addUser() throws SQLException {
         user = generateAndAddToDbUniqueUser(UserStatusType.PASSENGER, userDao);
 
@@ -38,7 +44,14 @@ public class UserDaoTest {
                 .password(user.getPassword())
                 .status(user.getStatus())
                 .build();
-        userDao.addUser(duplicateUser);
+
+        try {
+            userDao.addUser(duplicateUser);
+        } catch (Exception ex) {
+            Assert.assertEquals(SQLIntegrityConstraintViolationException.class, ex.getClass());
+        }
+
+        removeUser();
     }
     @Test
     public void getUser() throws SQLException {
@@ -80,6 +93,15 @@ public class UserDaoTest {
         Assert.assertEquals(user, dbUser);
 
         removeUser();
+    }
+
+    @Test
+    public void removeUserTest() throws SQLException {
+        user = generateAndAddToDbUniqueUser(UserStatusType.PASSENGER, userDao);
+
+        int res = userDao.deleteUser( user.getId() ).orElseThrow(NullPointerException::new);
+        Assert.assertEquals(1, res);
+
     }
 
     static User generateAndAddToDbUniqueUser(UserStatusType statusType, UserDao userDao) throws SQLException {
