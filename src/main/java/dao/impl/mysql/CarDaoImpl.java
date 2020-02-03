@@ -66,7 +66,7 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
         ps = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
         ps.setString(1, entity.getNumber());
         ps.setLong(2, entity.getColor().getId());
-        ps.setInt(3, entity.getModel().getId());
+        ps.setLong(3, entity.getModel().getId());
 
         return ps;
     }
