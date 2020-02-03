@@ -14,6 +14,7 @@ public class ColorDaoImpl extends AbstractDao<Color> implements ColorDao {
     private static final String addColor = "INSERT INTO colors(title) VALUE(?);";
     private static final String getColorByTitle = "SELECT id, title FROM colors WHERE title = ?;";
     private static final String getColorById = "SElECT id, title FROM colors WHERE id = ?;";
+    private static final String removeColor = "DELETE FROM colors WHERE id = ?;";
 
     ColorDaoImpl(MysqlDaoFactory factory) {
         super(factory);
@@ -44,7 +45,13 @@ public class ColorDaoImpl extends AbstractDao<Color> implements ColorDao {
     public Optional<Color> getById(int id) throws SQLException {
         Object[] parameters = new Object[] {id};
 
-        return getEntity(parameters, getColorById).map((list -> list.get(0)));
+        return getEntity(parameters, getColorById).map( (list) -> list.get(0) );
+    }
+    @Override
+    public boolean remove(int id) throws SQLException {
+        Object[] parameters = new Object[] {id};
+
+        return deleteOrUpdateEntity(parameters, removeColor).isPresent();
     }
 
     @Override
