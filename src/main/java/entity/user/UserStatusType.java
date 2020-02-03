@@ -16,14 +16,16 @@ public enum UserStatusType {
 
     UserStatusType(UserStatusDao userStatusDao){
         status = new UserStatus();
-        status.setTitle(name());
-        int id = 0;
+        status.setTitle( name() );
+
+        Long id;
         try {
             id = userStatusDao.mergeUserStatus(status)
-                    .orElseThrow(() -> new IllegalStateException("UserStatus with title " + "'" + status.getTitle() + "'" + " didn't found in DB"));
-        } catch (SQLException e) {
+                    .orElseThrow(() -> new IllegalStateException("UserStatus didn't found in DB. Title: " + status.getTitle()));
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+
         status.setId(id);
     }
 
@@ -31,10 +33,10 @@ public enum UserStatusType {
         return status;
     }
 
-    public static Optional<UserStatus> getStatus(int id){
-        return Arrays.stream(values())
-                .filter((i) -> i.status.getId() == id)
+    public static Optional<UserStatus> getStatus(long id){
+        return Arrays.stream( values() )
+                .filter( (type) -> type.status.getId() == id )
                 .findFirst()
-                .map(i -> i.status);
+                .map(UserStatusType::getStatus);
     }
 }

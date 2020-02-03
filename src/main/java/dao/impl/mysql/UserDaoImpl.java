@@ -96,7 +96,7 @@ class UserDaoImpl extends AbstractDao<User> implements UserDao {
         ps.setString(2, entity.getName());
         ps.setString(3, entity.getSurname());
         ps.setString(4, entity.getPassword());
-        ps.setInt(5, entity.getStatus().getId());
+        ps.setLong(5, entity.getStatus().getId());
 
         return ps;
 
