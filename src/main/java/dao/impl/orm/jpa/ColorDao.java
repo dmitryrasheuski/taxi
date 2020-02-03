@@ -38,7 +38,8 @@ class ColorDao extends AbstractDao<Color> implements dao.interfaces.ColorDao {
         Optional<Color> res = getByTitle(title);
 
         if ( ! res.isPresent() ) {
-            res = addColor(title).map( (id) -> new Color(id, title) );
+            res = addColor(title)
+                    .map( (id) -> new Color(id, title) );
         }
 
         return res.get();
@@ -46,5 +47,9 @@ class ColorDao extends AbstractDao<Color> implements dao.interfaces.ColorDao {
     @Override
     public Optional<Color> getById(int id) throws SQLException {
         return getEntity(Color.class, (long) id);
+    }
+    @Override
+    public boolean remove(int id) throws SQLException {
+        return removeEntity(Color.class, (long)id);
     }
 }
