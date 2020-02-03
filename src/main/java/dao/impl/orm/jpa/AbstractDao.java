@@ -1,10 +1,14 @@
 package dao.impl.orm.jpa;
 
 import lombok.extern.log4j.Log4j;
+import org.hibernate.HibernateException;
+import org.hibernate.exception.ConstraintViolationException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,14 +27,22 @@ abstract class AbstractDao <T> {
         this.transaction = entityManager.getTransaction();
     }
 
-    Optional<T> addEntity(T entity) {
+    Optional<T> addEntity(T entity) throws SQLIntegrityConstraintViolationException {
         try {
             transaction.begin();
             entityManager.persist(entity);
             transaction.commit();
             return Optional.of(entity);
 
-        } catch (Exception ex) {
+        } catch (PersistenceException ex) {
+            if( ex.getCause() == null ) throw ex;
+            if ( ex.getCause().getClass() != ConstraintViolationException.class ) throw  ex;
+
+            rollback(ex);
+            log.error("Entity is duplicate. Entity: " + entity, ex);
+            throw new SQLIntegrityConstraintViolationException();
+
+        }catch (Exception ex) {
             rollback(ex);
             log.error("An exception was generated when an entity was added to the database. Entity: " + entity, ex);
             return Optional.empty();
