@@ -14,14 +14,15 @@ public class CarModelDaoImpl extends AbstractDao<CarModel> implements CarModelDa
     private static final String addCarModel = "INSERT INTO car_model(title) VALUE (?);";
     private static final String getCarModelByTitle = "SELECT id, title FROM car_model WHERE title = ?;";
     private static final String getCarModelById = "SELECT id, title FROM car_model WHERE id = ?;";
+    private static final String removeCar = "DELETE FROM car_model WHERE id = ?;";
 
     CarModelDaoImpl (MysqlDaoFactory factory) {
         super(factory);
     }
 
     @Override
-    public Optional<Integer> addCarModel(CarModel model) throws SQLException {
-        return addEntity(model, addCarModel).map(Long::intValue);
+    public Optional<Long> addCarModel(CarModel model) throws SQLException {
+        return addEntity(model, addCarModel);
     }
     @Override
     public Optional<CarModel> getCarModel(String title) throws SQLException {
@@ -43,11 +44,18 @@ public class CarModelDaoImpl extends AbstractDao<CarModel> implements CarModelDa
 
     }
     @Override
-    public Optional<CarModel> getById(int id) throws SQLException {
+    public Optional<CarModel> getById(long id) throws SQLException {
         Object[] parameters = new Object[] {id};
 
         return getEntity(parameters, getCarModelById).map((list) -> list.get(0));
 
+    }
+
+    @Override
+    public boolean removeCarModel(CarModel model) throws SQLException {
+        Object[] parameters = new Object[] {model.getId()};
+
+        return deleteOrUpdateEntity(parameters, removeCar).isPresent();
     }
 
     @Override
@@ -64,10 +72,10 @@ public class CarModelDaoImpl extends AbstractDao<CarModel> implements CarModelDa
         if ( ! rs.next() ) return Optional.empty();
 
         List<CarModel> list = new ArrayList<>();
-        int id;
+        long id;
         String title;
         do{
-            id = rs.getInt("id");
+            id = rs.getLong("id");
             title = rs.getString("title");
             list.add( new CarModel(id, title));
         } while (rs.next());

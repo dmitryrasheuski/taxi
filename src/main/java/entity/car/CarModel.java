@@ -1,15 +1,13 @@
 package entity.car;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class CarModel {
-    private Integer id;
+    private Long id;
     @NonNull
     private String title;
 }

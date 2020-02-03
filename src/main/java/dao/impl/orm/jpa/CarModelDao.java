@@ -9,14 +9,14 @@ import java.util.Map;
 import java.util.Optional;
 
 class CarModelDao extends AbstractDao<CarModel> implements dao.interfaces.CarModelDao {
-    private static final String getByTitle = "SELECT cm FROM CarModel cm WHERE cm.title = :title";
+    private static final String getByTitle = "SELECT m FROM CarModel m WHERE m.title = :title";
 
     CarModelDao(JpaDaoFactory daoFactory) {
         super(daoFactory);
     }
 
     @Override
-    public Optional<Integer> addCarModel(CarModel model) throws SQLException {
+    public Optional<Long> addCarModel(CarModel model) throws SQLException {
         return addEntity(model)
                 .map(CarModel::getId);
     }
@@ -31,17 +31,22 @@ class CarModelDao extends AbstractDao<CarModel> implements dao.interfaces.CarMod
     }
     @Override
     public CarModel getOrElseAddAndGet(String title) throws SQLException {
-        Optional<CarModel> res = Optional.empty();
 
-        res = getCarModel(title);
+        Optional<CarModel> res = getCarModel(title);
+
         if ( ! res.isPresent() ) {
-            res = addCarModel(new CarModel(title)).map( (id) -> new CarModel(id, title) );
+            res = addCarModel( new CarModel(title) )
+                    .map( (id) -> new CarModel(id, title) );
         }
 
         return res.get();
     }
     @Override
-    public Optional<CarModel> getById(int id) throws SQLException {
+    public Optional<CarModel> getById(long id) throws SQLException {
         return getEntity(CarModel.class, (long)id);
+    }
+    @Override
+    public boolean removeCarModel(CarModel model) {
+        return removeEntity(CarModel.class, model.getId());
     }
 }
