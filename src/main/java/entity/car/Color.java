@@ -7,7 +7,7 @@ import lombok.*;
 @RequiredArgsConstructor
 @NoArgsConstructor
 public class Color {
-    private Integer id;
+    private Long id;
     @NonNull
     private String title;
 }
