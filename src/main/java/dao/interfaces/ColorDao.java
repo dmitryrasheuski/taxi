@@ -10,4 +10,5 @@ public interface ColorDao {
     Optional<Color> getByTitle(String title) throws SQLException;
     Color getOrElseAddAndGet(String title) throws  SQLException;
     Optional<Color> getById(int id) throws SQLException;
+    boolean remove(int id) throws SQLException;
 }
