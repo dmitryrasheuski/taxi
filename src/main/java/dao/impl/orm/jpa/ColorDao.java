@@ -17,7 +17,7 @@ class ColorDao extends AbstractDao<Color> implements dao.interfaces.ColorDao {
     }
 
     @Override
-    public Optional<Integer> addColor(String title) throws SQLException {
+    public Optional<Long> addColor(String title) throws SQLException {
 
         Optional<Color> entity = addEntity(new Color(title));
 
@@ -45,7 +45,7 @@ class ColorDao extends AbstractDao<Color> implements dao.interfaces.ColorDao {
         return res.get();
     }
     @Override
-    public Optional<Color> getById(int id) throws SQLException {
+    public Optional<Color> getById(long id) throws SQLException {
         return getEntity(Color.class, (long) id);
     }
     @Override
