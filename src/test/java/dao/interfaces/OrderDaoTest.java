@@ -1,6 +1,6 @@
-package dao.impl.mysql;
+package dao.interfaces;
 
-import dao.interfaces.*;
+import dao.impl.mysql.MysqlDaoFactory;
 import entity.car.Car;
 import entity.order.Address;
 import entity.order.Order;
@@ -33,8 +33,8 @@ public class OrderDaoTest {
         carDao = daoFactory.getCarDao();
         addressDao = daoFactory.getAddressDao();
 
-        passenger = UserDaoTest.generateUniqueUser(UserStatusType.PASSENGER, userDao);
-        driver = UserDaoTest.generateUniqueUser(UserStatusType.DRIVER, userDao);
+        passenger = UserDaoTest.generateAndAddToDbUniqueUser(UserStatusType.PASSENGER, userDao);
+        driver = UserDaoTest.generateAndAddToDbUniqueUser(UserStatusType.DRIVER, userDao);
         car = CarDaoTest.produceCar(driver, carDao);
         from = addressDao.getAddress("from").orElseThrow(NullPointerException::new);
         where = addressDao.getAddress("where").orElseThrow(NullPointerException::new);

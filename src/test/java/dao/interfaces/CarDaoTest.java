@@ -1,5 +1,7 @@
-package dao.impl.mysql;
+package dao.interfaces;
 
+import dao.impl.orm.jpa.HibernateDataSource;
+import dao.impl.orm.jpa.JpaDaoFactory;
 import dao.interfaces.DaoFactory;
 import dao.interfaces.CarDao;
 import dao.interfaces.UserDao;
@@ -24,11 +26,11 @@ public class CarDaoTest {
 
     @Before
     public void setUpMethod() throws SQLException{
-        DaoFactory daoFactory = new MysqlDaoFactory();
+        DaoFactory daoFactory = new JpaDaoFactory(HibernateDataSource.getInstance());
 
         carDao = daoFactory.getCarDao();
         userDao = daoFactory.getUserDao();
-        driver = UserDaoTest.generateUniqueUser(UserStatusType.DRIVER, userDao);
+        driver = UserDaoTest.generateAndAddToDbUniqueUser(UserStatusType.DRIVER, userDao);
         car = produceCar(driver, carDao);
 
     }
@@ -85,7 +87,8 @@ public class CarDaoTest {
                 .model(new CarModel("testModel"))
                 .color(new Color("testColor"))
                 .build();
-        long carId = carDao.addCar(car).orElseThrow(NullPointerException::new);
+        long carId = carDao.addCar(car)
+                .orElseThrow(NullPointerException::new);
         car.setId(carId);
 
         return car;

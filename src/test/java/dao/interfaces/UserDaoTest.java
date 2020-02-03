@@ -1,4 +1,4 @@
-package dao.impl.mysql;
+package dao.interfaces;
 
 import dao.impl.orm.jpa.HibernateDataSource;
 import dao.impl.orm.jpa.JpaDaoFactory;
