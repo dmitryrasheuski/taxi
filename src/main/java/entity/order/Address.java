@@ -5,11 +5,11 @@ import lombok.NonNull;
 
 @Data
 public class Address {
-    private long id;
+    private Long id;
     @NonNull
     private String title;
 
-    public Address(long id, String title) {
+    public Address(Long id, String title) {
         this.id = id;
         this.title = title.toUpperCase();
     }
