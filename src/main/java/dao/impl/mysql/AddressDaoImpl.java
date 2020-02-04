@@ -14,13 +14,31 @@ public class AddressDaoImpl extends AbstractDao<Address> implements AddressDao {
     private static final String getById = "SELECT id, title FROM address where id = ?";
     private static final String getByTitle = "SELECT id, title FROM address where title = ?";
     private static final String addAddress = "INSERT INTO address(title) VALUE (?)";
+    private static final String removeAddress = " DELETE FROM address WHERE id = ?";
 
     AddressDaoImpl (MysqlDaoFactory factory){
         super(factory);
     }
 
-    private Optional<Long> addAddress(Address address) throws SQLException {
-        return addEntity(address,addAddress);
+    @Override
+    public Optional<Address> addAddress(Address address) throws SQLException {
+        address.setTitle(
+                address.getTitle().toUpperCase()
+        );
+
+        Optional<Long> idOptional = addEntity(address,addAddress);
+
+        return idOptional.map(
+                (id) -> new Address(id, address.getTitle() )
+        );
+    }
+    @Override
+    public boolean removeAddress(Address address) throws SQLException {
+        Object [] parameters = { address.getId() };
+
+        Optional<Integer> quantity = deleteOrUpdateEntity(parameters, removeAddress);
+
+        return quantity.isPresent();
     }
     @Override
     public Optional<Address> getAddress(long id) throws SQLException {
@@ -31,14 +49,11 @@ public class AddressDaoImpl extends AbstractDao<Address> implements AddressDao {
     }
     @Override
     public Optional<Address> getAddress(String title) throws SQLException {
-        Object[] parameters = new Object[]{title};
-        Optional<Address> address;
+        Object[] parameters = new Object[]{ title.toUpperCase() };
 
-        address = getEntity(parameters, getByTitle).map( (list) -> list.get(0) );
-        if ( ! address.isPresent() ) address = addAddress( new Address(title) ).map( (id) -> new Address(id, title) );
+        Optional<Address> address = getEntity(parameters, getByTitle).map( (list) -> list.get(0) );
 
         return address;
-
     }
 
     @Override
