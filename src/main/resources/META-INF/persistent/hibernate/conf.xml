@@ -11,6 +11,8 @@
         <mapping resource="META-INF/persistent/hibernate/userStatus.xml" />
         <mapping resource="META-INF/persistent/hibernate/color.xml" />
         <mapping resource="META-INF/persistent/hibernate/carModel.xml" />
+        <mapping class="entity.car.Car" />
+        <mapping resource="META-INF/persistent/hibernate/address.xml" />
 
     </session-factory>
 </hibernate-configuration>
