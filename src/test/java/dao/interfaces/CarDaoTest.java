@@ -1,6 +1,8 @@
 package dao.interfaces;
 
 import dao.impl.mysql.MysqlDaoFactory;
+import dao.impl.orm.jpa.HibernateDataSource;
+import dao.impl.orm.jpa.JpaDaoFactory;
 import entity.car.Car;
 import entity.car.CarModel;
 import entity.car.Color;
@@ -23,7 +25,7 @@ public class CarDaoTest {
 
     @Before
     public void setUpMethod() throws SQLException{
-        DaoFactory daoFactory = new MysqlDaoFactory();
+        DaoFactory daoFactory = new JpaDaoFactory(HibernateDataSource.getInstance());
         carDao = daoFactory.getCarDao();
         userDao = daoFactory.getUserDao();
 
