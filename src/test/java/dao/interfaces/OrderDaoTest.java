@@ -12,6 +12,7 @@ import org.junit.*;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public class OrderDaoTest {
     private DaoFactory daoFactory;
@@ -29,7 +30,7 @@ public class OrderDaoTest {
 
     @Before
     public void setUpMethod() throws SQLException {
-        daoFactory = new MysqlDaoFactory();
+        daoFactory = new JpaDaoFactory(HibernateDataSource.getInstance());
         orderDao = daoFactory.getOrderDao();
         userDao = daoFactory.getUserDao();
         carDao = daoFactory.getCarDao();
@@ -69,13 +70,15 @@ public class OrderDaoTest {
         int quantity = orderDao.deleteOrder( order.getId() ).get();
 
         Assert.assertEquals(quantity, 1);
+        Optional list = orderDao.getListByPassengerId( passenger.getId() );
+        Assert.assertFalse( list.isPresent() );
     }
 
     @Test
     public void getListOrderByUserTest() throws SQLException {
         Order newOrder = createNewOrder();
 
-        List<Order> list = orderDao.getListByPassengerId(passenger.getId()).orElseThrow(NullPointerException::new);
+        List<Order> list = orderDao.getListByPassengerId(passenger.getId()).get();
         Assert.assertTrue( list.contains(order) );
         Assert.assertTrue( list.contains(newOrder) );
 

@@ -36,6 +36,8 @@ class OrderDao extends AbstractDao<Order> implements dao.interfaces.OrderDao {
 
         List<Order> list = getEntities( getList , new LinkedHashMap<>(1) );
 
-        return Optional.ofNullable(list);
+        return list.isEmpty() ?
+                Optional.empty() :
+                Optional.of(list);
     }
 }
