@@ -29,7 +29,7 @@ public class AddressDaoTest {
 
     @Test
     public void addAddressTest() throws SQLException {
-        String title = "deleteAddressTest";
+        String title = "addAddressTest";
         address = createAndAddToDbNewAddress(title);
 
         try {
