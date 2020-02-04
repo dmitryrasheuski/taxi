@@ -1,6 +1,8 @@
 package dao.interfaces;
 
 import dao.impl.mysql.MysqlDaoFactory;
+import dao.impl.orm.jpa.HibernateDataSource;
+import dao.impl.orm.jpa.JpaDaoFactory;
 import entity.car.Car;
 import entity.order.Address;
 import entity.order.Order;
@@ -33,48 +35,67 @@ public class OrderDaoTest {
         carDao = daoFactory.getCarDao();
         addressDao = daoFactory.getAddressDao();
 
-        passenger = UserDaoTest.generateAndAddToDbUniqueUser(UserStatusType.PASSENGER, userDao);
-        driver = UserDaoTest.generateAndAddToDbUniqueUser(UserStatusType.DRIVER, userDao);
-        car = CarDaoTest.produceCar(driver, carDao);
-        from = addressDao.getAddress("from").orElseThrow(NullPointerException::new);
-        where = addressDao.getAddress("where").orElseThrow(NullPointerException::new);
-        order = createNewOrder(passenger, car, from, where, "COMMENT", orderDao);
+        passenger = UserDaoTest.generateAndAddToDbUniqueUser( UserStatusType.PASSENGER, userDao );
+        driver = UserDaoTest.generateAndAddToDbUniqueUser( UserStatusType.DRIVER, userDao );
+        car = CarDaoTest.generateAndAddToDbUniqueCar(driver, carDao);
+
+        from = addressDao.getAddress( "From" ).get();
+        where = addressDao.getAddress( "Where" ).get();
+
+        order = createNewOrder();
 
     }
     @After
     public void tearDownMethod() throws SQLException {
-        orderDao.deleteOrder(order.getId()).orElseThrow(NullPointerException::new);
-        carDao.deleteCar(car.getId());
-        userDao.deleteUser(driver.getId());
-        userDao.deleteUser(passenger.getId());
+        if (  order != null ) orderDao.deleteOrder( order.getId() );
+        carDao.deleteCar (car.getId() );
+        userDao.deleteUser( driver.getId() );
+        userDao.deleteUser( passenger.getId() );
     }
 
     @Test
-    public void getListOrderByUser() throws SQLException {
-        Order order_2 = createNewOrder(passenger, car, where, from, "comment", orderDao);
+    public void addOrderDaoTest() throws SQLException {
 
-        List<Order> list = orderDao.getListByPassengerId(passenger.getId()).orElseThrow(NullPointerException::new);
-
-        orderDao.deleteOrder( order_2.getId() );
-
-        Assert.assertTrue(list.contains(order));
-        Assert.assertTrue(list.contains(order_2));
-
+        Assert.assertNotNull( order.getId() );
+        Assert.assertEquals( order.getPassenger() , passenger );
+        Assert.assertEquals( order.getCar() ,  car );
+        Assert.assertEquals( order.getFrom() , from );
+        Assert.assertEquals( order.getWhere() , where );
     }
 
-    static Order createNewOrder(User passenger, Car car, Address from, Address where, String comment, OrderDao orderDao) throws SQLException {
+    @Test
+    public void deleteOrderDaoTest() throws SQLException {
+
+        int quantity = orderDao.deleteOrder( order.getId() ).get();
+
+        Assert.assertEquals(quantity, 1);
+    }
+
+    @Test
+    public void getListOrderByUserTest() throws SQLException {
+        Order newOrder = createNewOrder();
+
+        List<Order> list = orderDao.getListByPassengerId(passenger.getId()).orElseThrow(NullPointerException::new);
+        Assert.assertTrue( list.contains(order) );
+        Assert.assertTrue( list.contains(newOrder) );
+
+        orderDao.deleteOrder( newOrder.getId() );
+    }
+
+    private Order createNewOrder() throws SQLException {
+
+
         Order order = Order.builder()
                 .passenger(passenger)
                 .car(car)
                 .from(from)
                 .where(where)
-                .comment(comment)
+                .comment("Comment")
                 .build();
 
         long id2 = orderDao.addOrder(order).orElseThrow(NullPointerException::new);
         order.setId(id2);
 
         return order;
-
     }
 }
