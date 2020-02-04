@@ -151,7 +151,7 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
     private void setModelCar(Car car) throws SQLException {
 
         CarModel model = daoFactory.getCarModelDao()
-                .getOrElseAddAndGet( car.getColor().getTitle() );
+                .getOrElseAddAndGet( car.getModel().getTitle() );
 
         car.setModel(model);
 
