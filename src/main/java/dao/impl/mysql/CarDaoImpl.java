@@ -31,10 +31,18 @@ class CarDaoImpl extends AbstractDao<Car> implements CarDao{
         setColorCar(car);
         setModelCar(car);
 
-        long carId = addEntity(car, addCar).orElseThrow(() -> new IllegalStateException("The new car wasn't added to database"));
-        addCarDriverRelationship(carId, car.getDriver().getId());
+        Long carId = addEntity(car, addCar).orElseThrow(() -> new IllegalStateException("The new car wasn't added to database"));
 
-        return Optional.of(carId);
+        try {
+            addCarDriverRelationship(carId, car.getDriver().getId());
+        } catch (Exception ex) {
+            log.error("Exception when adding a relationship", ex);
+            deleteCar(carId);
+            carId = null;
+            throw ex;
+        }
+
+        return Optional.ofNullable(carId);
 
     }
     @Override
