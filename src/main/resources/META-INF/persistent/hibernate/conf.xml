@@ -13,6 +13,7 @@
         <mapping resource="META-INF/persistent/hibernate/carModel.xml" />
         <mapping class="entity.car.Car" />
         <mapping resource="META-INF/persistent/hibernate/address.xml" />
+        <mapping resource="META-INF/persistent/hibernate/order.xml" />
 
     </session-factory>
 </hibernate-configuration>
