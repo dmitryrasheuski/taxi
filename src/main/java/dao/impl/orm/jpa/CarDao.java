@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 class CarDao extends AbstractDao<Car> implements dao.interfaces.CarDao {
-    private static final String getByDriverId = "SELECT c FROM Car c WHERE c.driver.getId = :driverId";
+    private static final String getByDriverId = "SELECT c FROM Car c WHERE c.driver.id = :driverId";
 
     CarDao(JpaDaoFactory daoFactory) {
         super(daoFactory);
