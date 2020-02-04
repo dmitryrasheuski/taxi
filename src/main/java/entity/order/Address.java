@@ -1,8 +1,8 @@
 package entity.order;
 
-import lombok.Data;
-import lombok.NonNull;
+import lombok.*;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Data
 public class Address {
     private Long id;
